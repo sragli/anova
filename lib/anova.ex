@@ -22,9 +22,9 @@ defmodule Anova do
     p_value = 1 - Statistics.Distributions.F.cdf(df_r, df_e).(f_value)
 
     [
-      %{"id" => "Between groups", "ss" => ssr, "df" => df_r, "ms" => ms_r, "fvalue" => f_value, "p" => p_value, "fcrit" => f_crit},
-      %{"id" => "Within groups", "ss" => sse, "df" => df_e, "ms" => ms_e},
-      %{"id" => "Total", "ss" => ssr + sse, "df" => df_r + df_e}
+      %{"id" => "between", "ss" => ssr, "df" => df_r, "ms" => ms_r, "fvalue" => f_value, "p" => p_value, "fcrit" => f_crit},
+      %{"id" => "within", "ss" => sse, "df" => df_e, "ms" => ms_e},
+      %{"id" => "total", "ss" => ssr + sse, "df" => df_r + df_e}
     ]
   end
 
