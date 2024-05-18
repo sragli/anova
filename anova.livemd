@@ -10,7 +10,19 @@ Mix.install([
 
 ## Description
 
+ANOVA, or Analysis of Variance is a widely used statistical technique for comparing means among multiple groups, providing insights into whether observed differences are due to actual effects or simply random variability. It's an extension of the t-test, allowing for comparisons among multiple groups simultaneously. One-Way ANOVA compares means of three or more independent groups for one factor.
+
 The null hypothesis of the ANOVA is that all group means are equal (i.e., not significantly different between classes), whereas the alternative hypothesis is that at least one mean is different from the others.
+
+<!-- livebook:{"break_markdown":true} -->
+
+### Assumptions
+
+<!-- livebook:{"break_markdown":true} -->
+
+* Homogeneity of variances: Assumes that the variance within each group is equal, but is fairly robust to violations of homogeneity of variances, especially when sample sizes are similar across groups and the departures from homogeneity are not extreme.
+* Independence of observations: Assumes that observations within each group are independent.
+* Normally distributed data: Assumes that the data within each group are normally distributed.
 
 ## Input
 
@@ -41,6 +53,10 @@ overall_mean = Enum.sum(group_means) / length(group_means)
 ```
 
 #### Sum of Squares
+
+<!-- livebook:{"break_markdown":true} -->
+
+The total variance explained by between-group differences (SSR) and within-group variability (SSE).
 
 <!-- livebook:{"break_markdown":true} -->
 
@@ -79,7 +95,7 @@ sse =
 
 <!-- livebook:{"break_markdown":true} -->
 
-"Df" corresponds to the degrees of freedom, and is computed as follows:
+Represents the number of independent pieces of information available for calculating variances. It is computed as follows:
 
 * for the line regression: number of groups - 1
 * for the line error: number of observations - number of groups
@@ -96,7 +112,8 @@ df_e = length(List.flatten(groups)) - length(groups)
 
 <!-- livebook:{"break_markdown":true} -->
 
-“Mean Square” is equal to the sum of square divided by the degrees of freedom:
+Variance estimates obtained by dividing the sum of squares by their respective degrees of freedom (MS<sub>R</sub> and MS<sub>E</sub>)
+It is equal to the sum of square divided by the degrees of freedom:
 
 ```elixir
 ms_r = ssr / df_r
@@ -110,13 +127,17 @@ ms_e = sse / df_e
 
 <!-- livebook:{"break_markdown":true} -->
 
-"F-value" corresponds to the ratio between the two mean squares:
+The F ratio is a statistical measure used to assess the ratio of variance between groups to the variance within groups. It helps determine whether the means of multiple groups are significantly different from each other.
+The F Ratio is calculated as the ratio of the between-group variance to the within-group variance:
 
 ```elixir
 f_value = ms_r / ms_e
 ```
 
-This F-value gives the test statistic (also referred as F_obs), which needs to be compared with the critical value found in the Fisher table to conclude the test. If the F-value is greater than the F critical value, then the results of the test are statistically significant.
+If there is no significant difference between the group means (null hypothesis is true), the F ratio is expected to be close to 1.
+A high F ratio indicates that the between-group variance is significantly larger than the within-group variance, suggesting that the means of at least some groups are likely different from each other.
+To determine whether the observed F ratio is significant, it is compared to a critical value from the F-distribution table, considering the degrees of freedom for both numerator and denominator (between groups and within groups, respectively) and the chosen significance level (alpha).
+If the F-value is greater than the F-critical value, then the results of the test are statistically significant.
 
 <!-- livebook:{"break_markdown":true} -->
 
@@ -128,8 +149,28 @@ f_crit = Statistics.Distributions.F.ppf(df_r, df_e).(1 - significance_level)
 
 #### P-value
 
+<!-- livebook:{"break_markdown":true} -->
+
+Significance, indicates the probability of obtaining the observed F ratio if the null hypothesis (no group differences) were true. A low p-value (<0.05) suggests strong evidence against the null hypothesis.
+
 ```elixir
 p_value = 1 - Statistics.Distributions.F.cdf(df_r, df_e).(f_value)
+```
+
+#### Effect size
+
+<!-- livebook:{"break_markdown":true} -->
+
+While statistical significance (p-value) indicates whether observed differences are likely due to chance, effect sizes complement this by quantifying the magnitude or practical importance of these differences. Larger effect sizes suggest stronger relationships between variables, regardless of statistical significance.
+
+Guidelines for Interpreting Effect Sizes:
+
+* Small Effect: Around 0.01 (1% of variance explained) can be considered a small effect size. It suggests that the independent variable explains a relatively small portion of the variability in the dependent variable.
+* Medium Effect: Approximately 0.06 to 0.14 (6% to 14% of variance explained) could be deemed a medium effect size. It implies a moderate degree of influence of the independent variable on the dependent variable.
+* Large Effect: Effect sizes of 0.14 or higher (>14% of variance explained) can be seen as a large effect size. It indicates a substantial impact of the independent variable on the variation observed in the dependent variable.
+
+```elixir
+effect_size = ssr / (ssr + sse)
 ```
 
 ### Results
