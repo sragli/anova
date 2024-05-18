@@ -8,6 +8,27 @@ defmodule Anova do
   Computes one-way ANOVA for the given groups.
   """
   def one_way(groups, alpha) do
+    {ssr, sse} = ss(groups)
+
+    df_r = length(groups) - 1
+    df_e = length(List.flatten(groups)) - length(groups)
+
+    ms_r = ssr / df_r
+    ms_e = sse / df_e
+
+    f_value = ms_r / ms_e
+
+    f_crit = Statistics.Distributions.F.ppf(df_r, df_e).(1 - alpha)
+    p_value = 1 - Statistics.Distributions.F.cdf(df_r, df_e).(f_value)
+
+    [
+      %{"id" => "Between groups", "ss" => ssr, "df" => df_r, "ms" => ms_r, "fvalue" => f_value, "p" => p_value, "fcrit" => f_crit},
+      %{"id" => "Within groups", "ss" => sse, "df" => df_e, "ms" => ms_e},
+      %{"id" => "Total", "ss" => ssr + sse, "df" => df_r + df_e}
+    ]
+  end
+
+  defp ss(groups) do
     group_means =
       for g <- groups do
         Enum.sum(g) / length(g)
@@ -30,21 +51,6 @@ defmodule Anova do
       |> List.flatten()
       |> Enum.sum()
 
-    df_r = length(groups) - 1
-    df_e = length(List.flatten(groups)) - length(groups)
-
-    ms_r = ssr / df_r
-    ms_e = sse / df_e
-
-    f_value = ms_r / ms_e
-
-    f_crit = Statistics.Distributions.F.ppf(df_r, df_e).(1 - alpha)
-    p_value = 1 - Statistics.Distributions.F.cdf(df_r, df_e).(f_value)
-
-    [
-      %{"id" => "Between groups", "ss" => ssr, "df" => df_r, "ms" => ms_r, "fvalue" => f_value, "p" => p_value, "fcrit" => f_crit},
-      %{"id" => "Within groups", "ss" => sse, "df" => df_e, "ms" => ms_e},
-      %{"id" => "Total", "ss" => ssr + sse, "df" => df_r + df_e}
-    ]
+    {ssr, sse}
   end
 end
