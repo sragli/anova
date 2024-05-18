@@ -1,0 +1,180 @@
+# ANOVA
+
+```elixir
+Mix.install([
+  {:statistics, "~> 0.6"},
+  {:kino, "~> 0.7"},
+  {:kino_vega_lite, "~> 0.1.10"}
+])
+```
+
+## Computing ANOVA
+
+The null hypothesis of the ANOVA is that all group means are equal (i.e., not significantly different between classes), whereas the alternative hypothesis is that at least one mean is different from the others.
+
+<!-- livebook:{"break_markdown":true} -->
+
+#### Input
+
+```elixir
+groups = [
+  [1, 2, 1, 0],
+  [2, 3, 2, 1],
+  [10, 7, 10, 8],
+  [5, 4, 5, 6]
+]
+```
+
+```elixir
+significance_level = 0.05
+```
+
+### Algorithm
+
+```elixir
+group_means =
+  for g <- groups do
+    Enum.sum(g) / length(g)
+  end
+```
+
+```elixir
+overall_mean = Enum.sum(group_means) / length(group_means)
+```
+
+#### Sum of Squares
+
+<!-- livebook:{"break_markdown":true} -->
+
+##### Sum of Squares Regression (SSR)
+
+<!-- livebook:{"break_markdown":true} -->
+
+The SSR is computed by taking the square of the difference between the mean group and the overall mean, multiplied by the number of observations in the group, and then taking the sum of all cells:
+
+```elixir
+ssr =
+  for i <- 0..(length(groups) - 1) do
+    length(Enum.at(groups, i)) * :math.pow(Enum.at(group_means, i) - overall_mean, 2)
+  end
+  |> Enum.sum()
+```
+
+##### Sum of Squares Error (SSE)
+
+<!-- livebook:{"break_markdown":true} -->
+
+The SSE is computed by taking the square of the difference between each observation and its group mean, and then taking the sum of all cells:
+
+```elixir
+sse =
+  for i <- 0..(length(groups) - 1) do
+    for v <- Enum.at(groups, i) do
+      :math.pow(v - Enum.at(group_means, i), 2)
+    end
+  end
+  |> List.flatten()
+  |> Enum.sum()
+```
+
+#### Degrees of Freedom (Df)
+
+<!-- livebook:{"break_markdown":true} -->
+
+"Df" corresponds to the degrees of freedom, and is computed as follows:
+
+* for the line regression: number of groups - 1
+* for the line error: number of observations - number of groups
+
+```elixir
+df_r = length(groups) - 1
+```
+
+```elixir
+df_e = length(List.flatten(groups)) - length(groups)
+```
+
+#### Mean Square
+
+<!-- livebook:{"break_markdown":true} -->
+
+“Mean Square” is equal to the sum of square divided by the degrees of freedom:
+
+```elixir
+ms_r = ssr / df_r
+```
+
+```elixir
+ms_e = sse / df_e
+```
+
+#### F-value
+
+<!-- livebook:{"break_markdown":true} -->
+
+"F-value" corresponds to the ratio between the two mean squares:
+
+```elixir
+f_value = ms_r / ms_e
+```
+
+This F-value gives the test statistic (also referred as F_obs), which needs to be compared with the critical value found in the Fisher table to conclude the test. If the F-value is greater than the F critical value, then the results of the test are statistically significant.
+
+<!-- livebook:{"break_markdown":true} -->
+
+#### F-critical value
+
+```elixir
+f_crit = Statistics.Distributions.F.ppf(df_r, df_e).(1 - significance_level)
+```
+
+#### P-value
+
+```elixir
+p_value = 1 - Statistics.Distributions.F.cdf(df_r, df_e).(f_value)
+```
+
+### Results
+
+```elixir
+data = [
+  %{
+    "" => "Between groups",
+    "SS" => ssr,
+    "df" => df_r,
+    "MS" => ms_r,
+    "F-value" => f_value,
+    "P-value" => p_value,
+    "F-crit" => f_crit
+  },
+  %{
+    "" => "Within groups",
+    "SS" => sse,
+    "df" => df_e,
+    "MS" => ms_e,
+    "F-value" => "",
+    "P-value" => "",
+    "F-crit" => ""
+  },
+  %{
+    "" => "Total",
+    "SS" => ssr + sse,
+    "df" => df_r + df_e,
+    "MS" => "",
+    "F-value" => "",
+    "P-value" => "",
+    "F-crit" => ""
+  }
+]
+
+Kino.DataTable.new(
+  data,
+  keys: ["", "SS", "df", "MS", "F-value", "P-value", "F-crit"]
+)
+```
+
+```elixir
+if f_value > f_crit do
+  "H0 rejected"
+end
+```
