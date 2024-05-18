@@ -21,8 +21,19 @@ defmodule Anova do
     f_crit = Statistics.Distributions.F.ppf(df_r, df_e).(1 - alpha)
     p_value = 1 - Statistics.Distributions.F.cdf(df_r, df_e).(f_value)
 
+    effect_size = ssr / (ssr + sse)
+
     [
-      %{"id" => "between", "ss" => ssr, "df" => df_r, "ms" => ms_r, "fvalue" => f_value, "p" => p_value, "fcrit" => f_crit},
+      %{
+        "id" => "between",
+        "ss" => ssr,
+        "df" => df_r,
+        "ms" => ms_r,
+        "f_value" => f_value,
+        "p" => p_value,
+        "f_crit" => f_crit,
+        "effect_size" => effect_size
+      },
       %{"id" => "within", "ss" => sse, "df" => df_e, "ms" => ms_e},
       %{"id" => "total", "ss" => ssr + sse, "df" => df_r + df_e}
     ]
