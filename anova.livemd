@@ -8,13 +8,11 @@ Mix.install([
 ])
 ```
 
-## Computing ANOVA
+## Description
 
 The null hypothesis of the ANOVA is that all group means are equal (i.e., not significantly different between classes), whereas the alternative hypothesis is that at least one mean is different from the others.
 
-<!-- livebook:{"break_markdown":true} -->
-
-#### Input
+## Input
 
 ```elixir
 groups = [
@@ -29,7 +27,7 @@ groups = [
 significance_level = 0.05
 ```
 
-### Algorithm
+## Algorithm
 
 ```elixir
 group_means =
