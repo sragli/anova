@@ -184,7 +184,8 @@ data = [
     "MS" => ms_r,
     "F-value" => f_value,
     "P-value" => p_value,
-    "F-crit" => f_crit
+    "F-crit" => f_crit,
+    "Effect Size" => effect_size
   },
   %{
     "" => "Within groups",
@@ -193,7 +194,8 @@ data = [
     "MS" => ms_e,
     "F-value" => "",
     "P-value" => "",
-    "F-crit" => ""
+    "F-crit" => "",
+    "Effect Size" => ""
   },
   %{
     "" => "Total",
@@ -202,13 +204,14 @@ data = [
     "MS" => "",
     "F-value" => "",
     "P-value" => "",
-    "F-crit" => ""
+    "F-crit" => "",
+    "Effect Size" => ""
   }
 ]
 
 Kino.DataTable.new(
   data,
-  keys: ["", "SS", "df", "MS", "F-value", "P-value", "F-crit"]
+  keys: ["", "SS", "df", "MS", "F-value", "P-value", "F-crit", "Effect Size"]
 )
 ```
 
