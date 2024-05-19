@@ -23,20 +23,15 @@ defmodule Anova do
 
     effect_size = ssr / (ssr + sse)
 
-    [
-      %{
-        "id" => "between",
-        "ss" => ssr,
-        "df" => df_r,
-        "ms" => ms_r,
-        "f_value" => f_value,
-        "p" => p_value,
-        "f_crit" => f_crit,
-        "effect_size" => effect_size
-      },
-      %{"id" => "within", "ss" => sse, "df" => df_e, "ms" => ms_e},
-      %{"id" => "total", "ss" => ssr + sse, "df" => df_r + df_e}
-    ]
+    %{
+      "between" => %{"ss" => ssr, "df" => df_r, "ms" => ms_r},
+      "within" => %{"ss" => sse, "df" => df_e, "ms" => ms_e},
+      "total" => %{"ss" => ssr + sse, "df" => df_r + df_e},
+      "f_value" => f_value,
+      "f_crit" => f_crit,
+      "p" => p_value,
+      "effect_size" => effect_size
+    }
   end
 
   defp ss(groups) do

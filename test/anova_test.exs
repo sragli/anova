@@ -17,6 +17,6 @@ defmodule AnovaTest do
     result = Anova.one_way(groups, alpha)
     IO.inspect(result)
 
-    assert Enum.at(result, 0)["p"] < alpha
+    assert result["p"] < alpha
   end
 end
