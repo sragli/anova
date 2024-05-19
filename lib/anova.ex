@@ -25,6 +25,8 @@ defmodule Anova do
 
     effect_size = ssr / (ssr + sse)
 
+    # TODO Implement Tukey's HSD test to compare group means
+
     %{
       "between" => %{"ss" => ssr, "df" => df_r, "ms" => ms_r},
       "within" => %{"ss" => sse, "df" => df_e, "ms" => ms_e},
