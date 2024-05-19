@@ -3,7 +3,7 @@ defmodule Anova do
   ANOVA (Analysis of variance).
   """
 
-  @spec one_way(list(), float()) :: list()
+  @spec one_way(list(), float()) :: map()
   @doc """
   Computes one-way ANOVA for the given groups.
   """
