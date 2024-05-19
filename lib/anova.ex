@@ -6,6 +6,8 @@ defmodule Anova do
   @spec one_way(list(), float()) :: map()
   @doc """
   Computes one-way ANOVA for the given groups.
+  groups: List of samples by group.
+  alpha: Significance level.
   """
   def one_way(groups, alpha) do
     {ssr, sse} = ss(groups)
