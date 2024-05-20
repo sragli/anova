@@ -20,12 +20,15 @@ defmodule Anova do
 
     f_value = ms_r / ms_e
 
+    #FIXME possibly wrong usage
     f_crit = Statistics.Distributions.F.ppf(df_r, df_e).(1 - alpha)
     p_value = 1 - Statistics.Distributions.F.cdf(df_r, df_e).(f_value)
 
+    #TODO Implement F-crit and P-value calculation
+
     effect_size = ssr / (ssr + sse)
 
-    # TODO Implement Tukey's HSD test to compare group means
+    #TODO Implement Tukey's HSD test to compare group means
 
     %{
       "between" => %{"ss" => ssr, "df" => df_r, "ms" => ms_r},
