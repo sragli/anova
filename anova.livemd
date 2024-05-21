@@ -12,6 +12,12 @@ Mix.install([
 
 ANOVA, or Analysis of Variance is a widely used statistical technique for comparing means among multiple groups, providing insights into whether observed differences are due to actual effects or simply random variability. It's an extension of the t-test, allowing for comparisons among multiple groups simultaneously. One-Way ANOVA compares means of three or more independent groups for one factor.
 
+<!-- livebook:{"break_markdown":true} -->
+
+### Null hypothesis
+
+<!-- livebook:{"break_markdown":true} -->
+
 The null hypothesis of the ANOVA is that all group means are equal (i.e., not significantly different between classes), whereas the alternative hypothesis is that at least one mean is different from the others.
 
 <!-- livebook:{"break_markdown":true} -->
@@ -26,6 +32,8 @@ The null hypothesis of the ANOVA is that all group means are equal (i.e., not si
 
 ## Input
 
+### Test data
+
 ```elixir
 groups = [
   [1, 2, 1, 0],
@@ -34,6 +42,12 @@ groups = [
   [5, 4, 5, 6]
 ]
 ```
+
+### Significance level
+
+<!-- livebook:{"break_markdown":true} -->
+
+Measure of the strength (probability) of the evidence that must be present in the sample before rejecting the null hypothesis:
 
 ```elixir
 significance_level = 0.05
