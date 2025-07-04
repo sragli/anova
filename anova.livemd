@@ -47,23 +47,29 @@ groups = [
 
 <!-- livebook:{"break_markdown":true} -->
 
-Measure of the strength (probability) of the evidence that must be present in the sample before rejecting the null hypothesis:
+Denoted by α (alpha), it is the measure of the strength (probability) of the evidence that must be present in the sample before rejecting the null hypothesis:
 
 ```elixir
-significance_level = 0.05
+alpha = 0.05
 ```
 
 ## Algorithm
 
 ```elixir
-group_means =
-  for g <- groups do
-    Enum.sum(g) / length(g)
-  end
-```
+all_observations = List.flatten(groups)
+n_total = length(all_observations)
+k = length(groups)
 
-```elixir
-overall_mean = Enum.sum(group_means) / length(group_means)
+group_stats = Enum.map(groups, fn group ->
+  %{
+    data: group,
+    n: length(group),
+    mean: Enum.sum(group) / length(group),
+    sum: Enum.sum(group)
+  }
+end)
+
+overall_mean = Enum.sum(all_observations) / n_total
 ```
 
 #### Sum of Squares
@@ -81,11 +87,11 @@ The total variance explained by between-group differences (SSR) and within-group
 The SSR is computed by taking the square of the difference between the mean group and the overall mean, multiplied by the number of observations in the group, and then taking the sum of all cells:
 
 ```elixir
-ssr =
-  for i <- 0..(length(groups) - 1) do
-    length(Enum.at(groups, i)) * :math.pow(Enum.at(group_means, i) - overall_mean, 2)
-  end
-  |> Enum.sum()
+ssr = group_stats
+      |> Enum.map(fn %{n: n, mean: group_mean} ->
+          n * :math.pow(group_mean - overall_mean, 2)
+        end)
+      |> Enum.sum()
 ```
 
 ##### Sum of Squares Error (SSE)
@@ -95,14 +101,14 @@ ssr =
 The SSE is computed by taking the square of the difference between each observation and its group mean, and then taking the sum of all cells:
 
 ```elixir
-sse =
-  for i <- 0..(length(groups) - 1) do
-    for v <- Enum.at(groups, i) do
-      :math.pow(v - Enum.at(group_means, i), 2)
-    end
-  end
-  |> List.flatten()
-  |> Enum.sum()
+sse = groups
+      |> Enum.zip(group_stats)
+      |> Enum.map(fn {group, %{mean: group_mean}} ->
+          group
+          |> Enum.map(fn x -> :math.pow(x - group_mean, 2) end)
+          |> Enum.sum()
+        end)
+      |> Enum.sum()
 ```
 
 #### Degrees of Freedom (Df)
@@ -115,11 +121,11 @@ Represents the number of independent pieces of information available for calcula
 * for the line error: number of observations - number of groups
 
 ```elixir
-df_r = length(groups) - 1
+df_between = k - 1
 ```
 
 ```elixir
-df_e = length(List.flatten(groups)) - length(groups)
+df_within = n_total - k
 ```
 
 #### Mean Square
@@ -130,22 +136,22 @@ Variance estimates obtained by dividing the sum of squares by their respective d
 It is equal to the sum of square divided by the degrees of freedom:
 
 ```elixir
-ms_r = ssr / df_r
+ms_between = ssr / df_between
 ```
 
 ```elixir
-ms_e = sse / df_e
+ms_within = sse / df_within
 ```
 
 #### F-value
 
 <!-- livebook:{"break_markdown":true} -->
 
-The F ratio is a statistical measure used to assess the ratio of variance between groups to the variance within groups. It helps determine whether the means of multiple groups are significantly different from each other.
+The F ratio or F statistics is a statistical measure used to assess the ratio of variance between groups to the variance within groups. It helps determine whether the means of multiple groups are significantly different from each other.
 The F Ratio is calculated as the ratio of the between-group variance to the within-group variance:
 
 ```elixir
-f_value = ms_r / ms_e
+f_statistic = ms_between / ms_within
 ```
 
 If there is no significant difference between the group means (null hypothesis is true), the F ratio is expected to be close to 1.
@@ -158,7 +164,7 @@ If the F-value is greater than the F-critical value, then the results of the tes
 #### F-critical value
 
 ```elixir
-f_crit = Statistics.Distributions.F.ppf(df_r, df_e).(1 - significance_level)
+f_crit = Statistics.Distributions.F.ppf(df_between, df_within).(1 - alpha)
 ```
 
 #### P-value
@@ -168,7 +174,7 @@ f_crit = Statistics.Distributions.F.ppf(df_r, df_e).(1 - significance_level)
 Significance, indicates the probability of obtaining the observed F ratio if the null hypothesis (no group differences) were true. A low p-value (<0.05) suggests strong evidence against the null hypothesis.
 
 ```elixir
-p_value = 1 - Statistics.Distributions.F.cdf(df_r, df_e).(f_value)
+p_value = 1 - Statistics.Distributions.F.cdf(df_between, df_within).(f_statistic)
 ```
 
 #### Effect size
@@ -194,9 +200,9 @@ data = [
   %{
     "" => "Between groups",
     "SS" => ssr,
-    "df" => df_r,
-    "MS" => ms_r,
-    "F-value" => f_value,
+    "df" => df_between,
+    "MS" => ms_between,
+    "F-value" => f_statistic,
     "P-value" => p_value,
     "F-crit" => f_crit,
     "Effect Size" => effect_size
@@ -204,8 +210,8 @@ data = [
   %{
     "" => "Within groups",
     "SS" => sse,
-    "df" => df_e,
-    "MS" => ms_e,
+    "df" => df_within,
+    "MS" => ms_within,
     "F-value" => "",
     "P-value" => "",
     "F-crit" => "",
@@ -214,7 +220,7 @@ data = [
   %{
     "" => "Total",
     "SS" => ssr + sse,
-    "df" => df_r + df_e,
+    "df" => df_between + df_within,
     "MS" => "",
     "F-value" => "",
     "P-value" => "",
@@ -230,7 +236,7 @@ Kino.DataTable.new(
 ```
 
 ```elixir
-if f_value > f_crit do
+if f_statistic > f_crit do
   "H0 rejected"
 end
 ```

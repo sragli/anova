@@ -1,6 +1,6 @@
 defmodule Anova do
   @moduledoc """
-  ANOVA (Analysis of variance) - Corrected Implementation
+  ANOVA (Analysis of variance)
   """
 
   @doc """
@@ -22,11 +22,10 @@ defmodule Anova do
     df_r = length(groups) - 1
     df_e = length(List.flatten(groups)) - length(groups)
 
-    # Protect against division by zero
-    ms_r = if df_r > 0, do: ssr / df_r, else: 0.0
-    ms_e = if df_e > 0, do: sse / df_e, else: 0.0
+    ms_r = ssr / df_r
+    ms_e = sse / df_e
 
-    f_value = if ms_e > 0, do: ms_r / ms_e, else: Float.nan()
+    f_value = ms_r / ms_e
 
     # Calculate F-critical value and p-value
     # Note: Assuming Statistics.Distributions.F expects (df_numerator, df_denominator)
@@ -86,6 +85,14 @@ defmodule AnovaAlternative do
   """
 
   def one_way_verbose(groups, alpha) do
+    if length(groups) < 2 do
+      raise ArgumentError, "At least 2 groups are required for ANOVA"
+    end
+
+    if Enum.any?(groups, fn group -> length(group) == 0 end) do
+      raise ArgumentError, "All groups must contain at least one observation"
+    end
+
     # Step 1: Calculate basic statistics
     all_observations = List.flatten(groups)
     n_total = length(all_observations)
