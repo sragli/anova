@@ -33,7 +33,7 @@ defmodule Anova do
     p_value = 1 - Statistics.Distributions.F.cdf(df_r, df_e).(f_value)
 
     # Effect size (eta-squared)
-    effect_size = if (ssr + sse) > 0, do: ssr / (ssr + sse), else: 0.0
+    effect_size = if ssr + sse > 0, do: ssr / (ssr + sse), else: 0.0
 
     %{
       "between" => %{"ss" => ssr, "df" => df_r, "ms" => ms_r},
@@ -49,30 +49,33 @@ defmodule Anova do
 
   defp ss(groups) do
     # Calculate group means
-    group_means = Enum.map(groups, fn group ->
-      Enum.sum(group) / length(group)
-    end)
+    group_means =
+      Enum.map(groups, fn group ->
+        Enum.sum(group) / length(group)
+      end)
 
     all_observations = List.flatten(groups)
     overall_mean = Enum.sum(all_observations) / length(all_observations)
 
     # Calculate Sum of Squares Regression (Between groups) - SSR
-    ssr = groups
-          |> Enum.zip(group_means)
-          |> Enum.map(fn {group, group_mean} ->
-            length(group) * :math.pow(group_mean - overall_mean, 2)
-          end)
-          |> Enum.sum()
+    ssr =
+      groups
+      |> Enum.zip(group_means)
+      |> Enum.map(fn {group, group_mean} ->
+        length(group) * :math.pow(group_mean - overall_mean, 2)
+      end)
+      |> Enum.sum()
 
     # Calculate Sum of Squares Error (Within groups) - SSE
-    sse = groups
-          |> Enum.zip(group_means)
-          |> Enum.map(fn {group, group_mean} ->
-            group
-            |> Enum.map(fn value -> :math.pow(value - group_mean, 2) end)
-            |> Enum.sum()
-          end)
-          |> Enum.sum()
+    sse =
+      groups
+      |> Enum.zip(group_means)
+      |> Enum.map(fn {group, group_mean} ->
+        group
+        |> Enum.map(fn value -> :math.pow(value - group_mean, 2) end)
+        |> Enum.sum()
+      end)
+      |> Enum.sum()
 
     {ssr, sse}
   end
@@ -99,14 +102,15 @@ defmodule AnovaAlternative do
     k = length(groups)
 
     # Group statistics
-    group_stats = Enum.map(groups, fn group ->
-      %{
-        data: group,
-        n: length(group),
-        mean: Enum.sum(group) / length(group),
-        sum: Enum.sum(group)
-      }
-    end)
+    group_stats =
+      Enum.map(groups, fn group ->
+        %{
+          data: group,
+          n: length(group),
+          mean: Enum.sum(group) / length(group),
+          sum: Enum.sum(group)
+        }
+      end)
 
     # Overall mean (CORRECT calculation)
     overall_mean = Enum.sum(all_observations) / n_total
@@ -115,26 +119,29 @@ defmodule AnovaAlternative do
     # SST = SSR + SSE (fundamental ANOVA identity)
 
     # Total Sum of Squares
-    sst = all_observations
-          |> Enum.map(fn x -> :math.pow(x - overall_mean, 2) end)
-          |> Enum.sum()
+    sst =
+      all_observations
+      |> Enum.map(fn x -> :math.pow(x - overall_mean, 2) end)
+      |> Enum.sum()
 
     # Sum of Squares Regression (Between groups)
-    ssr = group_stats
-          |> Enum.map(fn %{n: n, mean: group_mean} ->
-            n * :math.pow(group_mean - overall_mean, 2)
-          end)
-          |> Enum.sum()
+    ssr =
+      group_stats
+      |> Enum.map(fn %{n: n, mean: group_mean} ->
+        n * :math.pow(group_mean - overall_mean, 2)
+      end)
+      |> Enum.sum()
 
     # Sum of Squares Error (Within groups)
-    sse = groups
-          |> Enum.zip(group_stats)
-          |> Enum.map(fn {group, %{mean: group_mean}} ->
-            group
-            |> Enum.map(fn x -> :math.pow(x - group_mean, 2) end)
-            |> Enum.sum()
-          end)
-          |> Enum.sum()
+    sse =
+      groups
+      |> Enum.zip(group_stats)
+      |> Enum.map(fn {group, %{mean: group_mean}} ->
+        group
+        |> Enum.map(fn x -> :math.pow(x - group_mean, 2) end)
+        |> Enum.sum()
+      end)
+      |> Enum.sum()
 
     # Verify the fundamental identity: SST = SSR + SSE
     if abs(sst - (ssr + sse)) > 0.001 do
