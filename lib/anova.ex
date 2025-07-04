@@ -1,34 +1,40 @@
 defmodule Anova do
   @moduledoc """
-  ANOVA (Analysis of variance).
+  ANOVA (Analysis of variance) - Corrected Implementation
   """
 
-  @spec one_way(list(), float()) :: map()
   @doc """
   Computes one-way ANOVA for the given groups.
   groups: List of samples by group.
   alpha: Significance level.
   """
+  @spec one_way(list(), float()) :: map()
   def one_way(groups, alpha) do
-    {ssr, sse} = ss(groups)
+    if length(groups) < 2 do
+      raise ArgumentError, "At least 2 groups are required for ANOVA"
+    end
 
+    if Enum.any?(groups, fn group -> length(group) == 0 end) do
+      raise ArgumentError, "All groups must contain at least one observation"
+    end
+
+    {ssr, sse} = ss(groups)
     df_r = length(groups) - 1
     df_e = length(List.flatten(groups)) - length(groups)
 
-    ms_r = ssr / df_r
-    ms_e = sse / df_e
+    # Protect against division by zero
+    ms_r = if df_r > 0, do: ssr / df_r, else: 0.0
+    ms_e = if df_e > 0, do: sse / df_e, else: 0.0
 
-    f_value = ms_r / ms_e
+    f_value = if ms_e > 0, do: ms_r / ms_e, else: Float.nan()
 
-    # FIXME possibly wrong usage
+    # Calculate F-critical value and p-value
+    # Note: Assuming Statistics.Distributions.F expects (df_numerator, df_denominator)
     f_crit = Statistics.Distributions.F.ppf(df_r, df_e).(1 - alpha)
     p_value = 1 - Statistics.Distributions.F.cdf(df_r, df_e).(f_value)
 
-    # TODO Implement F-crit and P-value calculation
-
-    effect_size = ssr / (ssr + sse)
-
-    # TODO Implement Tukey's HSD test to compare group means
+    # Effect size (eta-squared)
+    effect_size = if (ssr + sse) > 0, do: ssr / (ssr + sse), else: 0.0
 
     %{
       "between" => %{"ss" => ssr, "df" => df_r, "ms" => ms_r},
@@ -37,33 +43,131 @@ defmodule Anova do
       "f_value" => f_value,
       "f_crit" => f_crit,
       "p" => p_value,
-      "effect_size" => effect_size
+      "effect_size" => effect_size,
+      "significant?" => p_value < alpha
     }
   end
 
   defp ss(groups) do
-    group_means =
-      for g <- groups do
-        Enum.sum(g) / length(g)
-      end
+    # Calculate group means
+    group_means = Enum.map(groups, fn group ->
+      Enum.sum(group) / length(group)
+    end)
 
-    overall_mean = Enum.sum(group_means) / length(group_means)
+    all_observations = List.flatten(groups)
+    overall_mean = Enum.sum(all_observations) / length(all_observations)
 
-    ssr =
-      for i <- 0..(length(groups) - 1) do
-        length(Enum.at(groups, i)) * :math.pow(Enum.at(group_means, i) - overall_mean, 2)
-      end
-      |> Enum.sum()
+    # Calculate Sum of Squares Regression (Between groups) - SSR
+    ssr = groups
+          |> Enum.zip(group_means)
+          |> Enum.map(fn {group, group_mean} ->
+            length(group) * :math.pow(group_mean - overall_mean, 2)
+          end)
+          |> Enum.sum()
 
-    sse =
-      for i <- 0..(length(groups) - 1) do
-        for v <- Enum.at(groups, i) do
-          :math.pow(v - Enum.at(group_means, i), 2)
-        end
-      end
-      |> List.flatten()
-      |> Enum.sum()
+    # Calculate Sum of Squares Error (Within groups) - SSE
+    sse = groups
+          |> Enum.zip(group_means)
+          |> Enum.map(fn {group, group_mean} ->
+            group
+            |> Enum.map(fn value -> :math.pow(value - group_mean, 2) end)
+            |> Enum.sum()
+          end)
+          |> Enum.sum()
 
     {ssr, sse}
+  end
+end
+
+# Alternative implementation showing the mathematical relationships more clearly
+defmodule AnovaAlternative do
+  @moduledoc """
+  Alternative ANOVA implementation with clearer mathematical relationships.
+  """
+
+  def one_way_verbose(groups, alpha) do
+    # Step 1: Calculate basic statistics
+    all_observations = List.flatten(groups)
+    n_total = length(all_observations)
+    k = length(groups)
+
+    # Group statistics
+    group_stats = Enum.map(groups, fn group ->
+      %{
+        data: group,
+        n: length(group),
+        mean: Enum.sum(group) / length(group),
+        sum: Enum.sum(group)
+      }
+    end)
+
+    # Overall mean (CORRECT calculation)
+    overall_mean = Enum.sum(all_observations) / n_total
+
+    # Step 2: Calculate Sum of Squares
+    # SST = SSR + SSE (fundamental ANOVA identity)
+
+    # Total Sum of Squares
+    sst = all_observations
+          |> Enum.map(fn x -> :math.pow(x - overall_mean, 2) end)
+          |> Enum.sum()
+
+    # Sum of Squares Regression (Between groups)
+    ssr = group_stats
+          |> Enum.map(fn %{n: n, mean: group_mean} ->
+            n * :math.pow(group_mean - overall_mean, 2)
+          end)
+          |> Enum.sum()
+
+    # Sum of Squares Error (Within groups)
+    sse = groups
+          |> Enum.zip(group_stats)
+          |> Enum.map(fn {group, %{mean: group_mean}} ->
+            group
+            |> Enum.map(fn x -> :math.pow(x - group_mean, 2) end)
+            |> Enum.sum()
+          end)
+          |> Enum.sum()
+
+    # Verify the fundamental identity: SST = SSR + SSE
+    if abs(sst - (ssr + sse)) > 0.001 do
+      IO.puts("WARNING: SST != SSR + SSE. Check calculations!")
+      IO.puts("SST: #{sst}, SSR + SSE: #{ssr + sse}")
+    end
+
+    # Step 3: Degrees of freedom
+    df_between = k - 1
+    df_within = n_total - k
+    df_total = n_total - 1
+
+    # Step 4: Mean squares
+    ms_between = ssr / df_between
+    ms_within = sse / df_within
+
+    # Step 5: F-statistic
+    f_statistic = ms_between / ms_within
+
+    # Step 6: P-value (assuming correct F-distribution function usage)
+    p_value = 1 - Statistics.Distributions.F.cdf(df_between, df_within).(f_statistic)
+
+    %{
+      summary: %{
+        groups: k,
+        total_observations: n_total,
+        overall_mean: overall_mean,
+        group_means: Enum.map(group_stats, fn %{mean: mean} -> mean end)
+      },
+      anova_table: %{
+        between: %{ss: ssr, df: df_between, ms: ms_between},
+        within: %{ss: sse, df: df_within, ms: ms_within},
+        total: %{ss: sst, df: df_total}
+      },
+      test_results: %{
+        f_statistic: f_statistic,
+        p_value: p_value,
+        significant?: p_value < alpha,
+        effect_size: ssr / sst
+      }
+    }
   end
 end

@@ -1,6 +1,6 @@
 # ANOVA
 
-ANOVA implementation in Elixir
+ANOVA implementation in Elixir.
 
 ## Installation
 
@@ -15,6 +15,27 @@ def deps do
 end
 ```
 
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at <https://hexdocs.pm/anova>.
+## Key Features
+
+### Main ANOVA Function (anova/2)
+
+* Takes a list of groups (each group is a list of observations)
+* Calculates F-statistic, p-value, and all intermediate statistics
+* Returns a detailed map with all ANOVA results
+
+Complete Statistical Calculations:
+
+* Sum of Squares Between (SSB), Within (SSW), and Total (SST)
+* Mean Squares and degrees of freedom
+* F-statistic and p-value approximation
+* Significance testing
+
+## Usage
+
+```
+groups = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+alpha = 0.05
+
+# Run ANOVA
+results = Anova.one_way(groups, alpha)
+```
