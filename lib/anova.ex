@@ -36,14 +36,14 @@ defmodule Anova do
     effect_size = if ssr + sse > 0, do: ssr / (ssr + sse), else: 0.0
 
     %{
-      "between" => %{"ss" => ssr, "df" => df_r, "ms" => ms_r},
-      "within" => %{"ss" => sse, "df" => df_e, "ms" => ms_e},
-      "total" => %{"ss" => ssr + sse, "df" => df_r + df_e},
-      "f_value" => f_value,
-      "f_crit" => f_crit,
-      "p" => p_value,
-      "effect_size" => effect_size,
-      "significant?" => p_value < alpha
+      between: %{ss: ssr, df: df_r, ms: ms_r},
+      within: %{ss: sse, df: df_e, ms: ms_e},
+      total: %{ss: ssr + sse, df: df_r + df_e},
+      f_value: f_value,
+      f_crit: f_crit,
+      p: p_value,
+      effect_size: effect_size,
+      significant: p_value < alpha
     }
   end
 

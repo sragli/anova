@@ -4,7 +4,7 @@ defmodule AnovaTest do
   use ExUnit.Case
   doctest Anova
 
-  test "greets the world" do
+  test "group differences are significant" do
     groups = [
       [1, 2, 1, 0],
       [2, 3, 2, 1],
@@ -17,6 +17,6 @@ defmodule AnovaTest do
     result = Anova.one_way(groups, alpha)
     IO.inspect(result)
 
-    assert result["p"] < alpha
+    assert result[:p] < alpha == result[:significant]
   end
 end
