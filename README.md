@@ -4,8 +4,7 @@ ANOVA implementation in Elixir.
 
 ## Installation
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `anova` to your list of dependencies in `mix.exs`:
+If [available in Hex](https://hex.pm/docs/publish), the package can be installed by adding `anova` to your list of dependencies in `mix.exs`:
 
 ```elixir
 def deps do
@@ -32,10 +31,9 @@ Complete Statistical Calculations:
 
 ## Usage
 
-```
+```elixir
 groups = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
 alpha = 0.05
 
-# Run ANOVA
 results = Anova.one_way(groups, alpha)
 ```
