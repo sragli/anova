@@ -27,8 +27,6 @@ defmodule Anova do
 
     f_value = ms_r / ms_e
 
-    # Calculate F-critical value and p-value
-    # Note: Assuming Statistics.Distributions.F expects (df_numerator, df_denominator)
     f_crit = Statistics.Distributions.F.ppf(df_r, df_e).(1 - alpha)
     p_value = 1 - Statistics.Distributions.F.cdf(df_r, df_e).(f_value)
 
@@ -48,7 +46,6 @@ defmodule Anova do
   end
 
   defp ss(groups) do
-    # Calculate group means
     group_means =
       Enum.map(groups, fn group ->
         Enum.sum(group) / length(group)
@@ -81,7 +78,6 @@ defmodule Anova do
   end
 end
 
-# Alternative implementation showing the mathematical relationships more clearly
 defmodule AnovaAlternative do
   @moduledoc """
   Alternative ANOVA implementation with clearer mathematical relationships.
@@ -112,7 +108,7 @@ defmodule AnovaAlternative do
         }
       end)
 
-    # Overall mean (CORRECT calculation)
+    # Overall mean
     overall_mean = Enum.sum(all_observations) / n_total
 
     # Step 2: Calculate Sum of Squares
@@ -161,7 +157,7 @@ defmodule AnovaAlternative do
     # Step 5: F-statistic
     f_statistic = ms_between / ms_within
 
-    # Step 6: P-value (assuming correct F-distribution function usage)
+    # Step 6: P-value
     p_value = 1 - Statistics.Distributions.F.cdf(df_between, df_within).(f_statistic)
 
     %{
