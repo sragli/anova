@@ -1,4 +1,4 @@
-defmodule Anova do
+defmodule ANOVA do
   @moduledoc """
   ANOVA (Analysis of variance)
   """
@@ -78,7 +78,7 @@ defmodule Anova do
   end
 end
 
-defmodule AnovaAlternative do
+defmodule ANOVAAlternative do
   @moduledoc """
   Alternative ANOVA implementation with clearer mathematical relationships.
   """

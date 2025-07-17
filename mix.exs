@@ -1,4 +1,4 @@
-defmodule Anova.MixProject do
+defmodule ANOVA.MixProject do
   use Mix.Project
 
   def project do

@@ -1,8 +1,8 @@
-defmodule AnovaTest do
+defmodule ANOVATest do
   @moduledoc false
 
   use ExUnit.Case
-  doctest Anova
+  doctest ANOVA
 
   test "group differences are significant" do
     groups = [
@@ -14,7 +14,7 @@ defmodule AnovaTest do
 
     alpha = 0.05
 
-    result = Anova.one_way(groups, alpha)
+    result = ANOVA.one_way(groups, alpha)
     IO.inspect(result)
 
     assert result[:p] < alpha == result[:significant]
