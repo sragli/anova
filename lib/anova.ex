@@ -78,12 +78,12 @@ defmodule ANOVA do
   end
 end
 
-defmodule ANOVAAlternative do
+defmodule ANOVAVerbose do
   @moduledoc """
   Alternative ANOVA implementation with clearer mathematical relationships.
   """
 
-  def one_way_verbose(groups, alpha) do
+  def one_way(groups, alpha) do
     if length(groups) < 2 do
       raise ArgumentError, "At least 2 groups are required for ANOVA"
     end

@@ -36,4 +36,5 @@ groups = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
 alpha = 0.05
 
 results = ANOVA.one_way(groups, alpha)
+results = ANOVAVerbose.one_way(groups, alpha)
 ```
