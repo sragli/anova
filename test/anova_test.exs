@@ -17,6 +17,7 @@ defmodule ANOVATest do
     result = ANOVA.one_way(groups, alpha)
     IO.inspect(result)
 
-    assert result[:p] < alpha == result[:significant]
+    assert true == result.test_results.significant?
+    assert result.test_results.p_value < alpha
   end
 end

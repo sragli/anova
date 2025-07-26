@@ -1,0 +1,33 @@
+# ANOVA Test
+
+```elixir
+Mix.install([
+  {:kino, "~> 0.7"},
+  {:kino_vega_lite, "~> 0.1.13"},
+  {:anova, path: __DIR__}
+])
+```
+
+## Preparing input
+
+We have a series of measurements grouped by stimuli. We applied the same stimulus on the first group, the second group is the baseline:
+
+```elixir
+groups =
+  [
+    [12394, 8802, 11233, 9523, 10351, 10063, 8181, 9665, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0]
+  ]
+```
+
+## Analysis
+
+Our hypothesis is that the stimulus cause measurable and significant effect. It follows that the null hypothesis is that there is no significant difference between the two groups.
+
+We will test is using ANOVA, using the significance level (α - the probability that the null hypothesis is true) 0.05:
+
+```elixir
+ANOVA.one_way(groups, 0.05)
+```
+
+As you have seen, we have disproved the null hypothesis, the difference is significant.
