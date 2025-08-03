@@ -5,27 +5,27 @@ defmodule ANOVA do
 
   @doc """
   Computes one-way ANOVA for the given groups.
-  groups: List of samples by group.
-  alpha: Significance level.
+  groups: List of samples by group
+  alpha: Significance level
   """
+  def one_way(groups, _alpha) when length(groups) < 2 do
+    IO.warn("At least 2 groups are required for ANOVA")
+    %{}
+  end
+
+  def one_way([[] | _], _alpha) do
+    IO.warn("All groups must contain at least one observation")
+    %{}
+  end
+
   def one_way(groups, alpha) do
-    if length(groups) < 2 do
-      raise ArgumentError, "At least 2 groups are required for ANOVA"
-    end
-
-    if Enum.any?(groups, fn group -> length(group) == 0 end) do
-      raise ArgumentError, "All groups must contain at least one observation"
-    end
-
     # Step 1: Calculate basic statistics
     all_observations = List.flatten(groups)
     n_total = length(all_observations)
     k = length(groups)
 
-    # Group statistics
     group_stats = calculate_group_stats(groups)
 
-    # Overall mean
     overall_mean = Enum.sum(all_observations) / n_total
 
     # Step 2: Calculate Sum of Squares
