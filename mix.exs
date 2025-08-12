@@ -7,21 +7,44 @@ defmodule ANOVA.MixProject do
       version: "0.1.0",
       elixir: "~> 1.15",
       start_permanent: Mix.env() == :prod,
-      deps: deps()
+      description: description(),
+      package: package(),
+      deps: deps(),
+      name: "ANOVA",
+      source_url: "https://github.com/sragli/anova",
+      docs: docs()
     ]
   end
 
-  # Run "mix help compile.app" to learn about applications.
   def application do
     [
       extra_applications: [:logger]
     ]
   end
 
-  # Run "mix help deps" to learn about dependencies.
+  defp description() do
+    "ANOVA implementation in Elixir."
+  end
+
+  defp package() do
+    [
+      files: ~w(lib .formatter.exs mix.exs README.md LICENSE CHANGELOG),
+      licenses: ["Apache-2.0"],
+      links: %{"GitHub" => "https://github.com/sragli/anova"}
+    ]
+  end
+
+  defp docs() do
+    [
+      main: "ANOVA",
+      extras: ["README.md", "LICENSE", "examples.livemd"]
+    ]
+  end
+
   defp deps do
     [
-      {:statistics, "~> 0.6"}
+      {:statistics, "~> 0.6"},
+      {:ex_doc, ">= 0.0.0", only: :dev, runtime: false}
     ]
   end
 end

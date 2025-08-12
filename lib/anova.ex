@@ -5,8 +5,10 @@ defmodule ANOVA do
 
   @doc """
   Computes one-way ANOVA for the given groups.
-  groups: List of samples by group
-  alpha: Significance level
+
+  ## Parameters
+  - groups: List of samples by group
+  - alpha: Significance level
   """
   def one_way(groups, _alpha) when length(groups) < 2 do
     IO.warn("At least 2 groups are required for ANOVA")
