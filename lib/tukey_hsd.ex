@@ -256,7 +256,6 @@ defmodule TukeyHSD do
     total_comparisons = length(comparisons)
     significant_comparisons = Enum.count(comparisons, & &1.significant?)
 
-    # Calculate summary statistics using Statistics module
     differences = Enum.map(comparisons, & &1.difference)
     effect_sizes = Enum.map(comparisons, & &1.effect_size)
 
