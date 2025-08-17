@@ -19,27 +19,16 @@ defmodule TukeyHSD do
         test_results: %{
           alpha: alpha
         }
-      }) do
+      } = anova_result) do
     # Calculate critical value using available Statistics functions or lookup table
     q_critical = get_q_critical(n_groups, df_within, alpha)
 
     # Perform all pairwise comparisons
     comparisons = perform_pairwise_comparisons(group_means, group_sizes, ms_within, q_critical)
 
-    %{
-      test_info: %{
-        method: "Tukey's HSD",
-        alpha: alpha,
-        q_critical: q_critical,
-        ms_within: ms_within,
-        degrees_freedom_within: df_within,
-        num_groups: n_groups,
-        group_sizes: group_sizes,
-        unequal_groups: length(Enum.uniq(group_sizes)) > 1
-      },
-      pairwise_comparisons: comparisons,
-      summary: summarize_results(comparisons)
-    }
+    anova_result
+    |> Map.put(:pairwise_comparisons, comparisons)
+    |> Map.put(:posthoc_summary, summarize_results(comparisons))
   end
 
   defp perform_pairwise_comparisons(group_means, group_sizes, ms_within, q_critical) do
