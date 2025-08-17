@@ -31,7 +31,7 @@ defmodule ANOVA do
     overall_mean = Enum.sum(all_observations) / n_total
 
     # Step 2: Calculate Sum of Squares
-    {sst, ssr, sse} = calculate_sum_of_squares(groups, all_observations, overall_mean, group_stats)
+    {sst, ssr, sse} = calculate_sum_of_squares(all_observations, overall_mean, group_stats)
 
     # Step 3: Degrees of freedom
     df_between = k - 1
@@ -51,6 +51,7 @@ defmodule ANOVA do
     %{
       summary: %{
         groups: k,
+        group_sizes: Enum.map(groups, fn g -> length(g) end),
         total_observations: n_total,
         overall_mean: overall_mean,
         group_means: Enum.map(group_stats, fn %{mean: mean} -> mean end)
@@ -62,6 +63,7 @@ defmodule ANOVA do
       },
       test_results: %{
         f_statistic: f_statistic,
+        alpha: alpha,
         p_value: p_value,
         significant?: p_value < alpha,
         effect_size: ssr / sst
@@ -80,7 +82,7 @@ defmodule ANOVA do
     end)
   end
 
-  defp calculate_sum_of_squares(groups, all_observations, overall_mean, group_stats) do
+  defp calculate_sum_of_squares(all_observations, overall_mean, group_stats) do
     sst =
       all_observations
       |> Enum.map(fn x -> :math.pow(x - overall_mean, 2) end)
@@ -96,9 +98,8 @@ defmodule ANOVA do
 
     # Sum of Squares Error (Within groups)
     sse =
-      groups
-      |> Enum.zip(group_stats)
-      |> Enum.map(fn {group, %{mean: group_mean}} ->
+      group_stats
+      |> Enum.map(fn %{data: group, mean: group_mean} ->
         group
         |> Enum.map(fn x -> :math.pow(x - group_mean, 2) end)
         |> Enum.sum()
