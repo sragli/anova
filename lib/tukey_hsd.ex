@@ -20,10 +20,8 @@ defmodule TukeyHSD do
           alpha: alpha
         }
       } = anova_result) do
-    # Calculate critical value using available Statistics functions or lookup table
     q_critical = get_q_critical(n_groups, df_within, alpha)
 
-    # Perform all pairwise comparisons
     comparisons = perform_pairwise_comparisons(group_means, group_sizes, ms_within, q_critical)
 
     anova_result
@@ -41,7 +39,6 @@ defmodule TukeyHSD do
       n_i = Enum.at(group_sizes, i - 1)
       n_j = Enum.at(group_sizes, j - 1)
 
-      # Calculate standard error for this specific comparison
       # SE = sqrt(MS_within * (1/n_i + 1/n_j))
       standard_error = :math.sqrt(ms_within * (1 / n_i + 1 / n_j))
 
@@ -51,13 +48,10 @@ defmodule TukeyHSD do
       difference = abs(mean_i - mean_j)
       significant = difference > hsd
 
-      # Calculate Q-statistic for this comparison
       q_statistic = difference / standard_error
 
-      # Estimate p-value using relationship to t-distribution
       p_value = estimate_tukey_p_value(q_statistic)
 
-      # Calculate confidence interval
       ci = calculate_confidence_interval(mean_i - mean_j, hsd)
 
       %{
@@ -104,7 +98,6 @@ defmodule TukeyHSD do
     difference / (standard_error * :math.sqrt(2))
   end
 
-  # Use F-distribution from Statistics module to approximate Q critical values
   defp get_q_critical(k, df, alpha) do
     get_q_critical_lookup(k, df, alpha)
   end
