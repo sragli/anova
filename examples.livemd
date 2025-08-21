@@ -4,7 +4,7 @@
 Mix.install([
   {:kino, "~> 0.7"},
   {:kino_vega_lite, "~> 0.1.13"},
-  {:anova, path: __DIR__}
+  {:anova, "~> 0.4.0"}
 ])
 ```
 
@@ -24,10 +24,14 @@ groups =
 
 Our hypothesis is that the stimulus cause measurable and significant effect. It follows that the null hypothesis is that there is no significant difference between the two groups.
 
-We will test is using ANOVA, using the significance level (α - the probability that the null hypothesis is true) 0.05:
+We will test it using ANOVA, using the significance level (α - the probability that the null hypothesis is true) 0.05:
 
 ```elixir
-ANOVA.one_way(groups, 0.05)
+anova_results = ANOVA.one_way(groups)
+
+alpha = 0.05
+
+TukeyHSD.test(anova_results, alpha)
 ```
 
 As you have seen, we have disproved the null hypothesis, the difference is significant.
