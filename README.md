@@ -35,7 +35,7 @@ tukey_results = TukeyHSD.test(anova_results, alpha)
 
 ## Limitations
 
-* Using rough approximations to estimate Tukey's confidence interval, p-value and effect size.
+* Using rough approximations to estimate Tukey's p-value.
 
 ## Theoretical Background
 

@@ -1,0 +1,17 @@
+## [0.5.0] - 2025-08-21
+### Changed
+- Better-structured Tukey's HSD result format
+- Improved Tukey's HSD effect size calculation
+
+## [0.4.0] - 2025-08-21
+### Changed
+- Removed alpha from ANOVA parameters, and also removed the 'significant?' result field
+- Minor optimizations and refactoring
+
+## [0.3.1] - 2025-08-21
+### Changed
+- Improved Tukey's HSD p-value estimation
+
+## [0.3.0] - 2025-08-17
+### Changed
+- Changed Tukey's HSD test result format

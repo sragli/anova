@@ -43,7 +43,6 @@ defmodule TukeyHSD do
       n_i = Enum.at(group_sizes, i - 1)
       n_j = Enum.at(group_sizes, j - 1)
 
-      # SE = sqrt(MS_within * (1/n_i + 1/n_j))
       standard_error = :math.sqrt(ms_within * (1 / n_i + 1 / n_j))
 
       # Calculate HSD critical difference for this pair
