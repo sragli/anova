@@ -16,7 +16,7 @@ If [available in Hex](https://hex.pm/docs/publish), the package can be installed
 ```elixir
 def deps do
   [
-    {:anova, "~> 0.3.1"}
+    {:anova, "~> 0.4.0"}
   ]
 end
 ```
@@ -25,11 +25,12 @@ end
 
 ```elixir
 groups = [[1,2,3,4,5], [6,7,8,9,10], [11,12,13,14,15]]
+
 alpha = 0.05
 
-anova_results = ANOVA.one_way(groups, alpha)
+anova_results = ANOVA.one_way(groups)
 
-tukey_results = TukeyHSD.test(anova_results)
+tukey_results = TukeyHSD.test(anova_results, alpha)
 ```
 
 ## Limitations

@@ -3,50 +3,65 @@ defmodule ANOVA do
   ANOVA (Analysis of variance)
   """
 
+  @type number_list :: [number()]
+  @type groups :: [number_list()]
+
   @doc """
-  Computes one-way ANOVA for the given groups.
+  One-way ANOVA for k independent groups (unequal n allowed).
 
-  ## Parameters
-  - groups: List of samples by group
-  - alpha: Significance level
+  Call `ANOVA.one_way(groups)` where `groups` is a list of lists of numbers.
+
+  Returns a map with the computed values.
   """
-  def one_way(groups, _alpha) when length(groups) < 2 do
-    IO.warn("At least 2 groups are required for ANOVA")
-    %{}
+  @spec one_way(groups()) :: map()
+
+  def one_way(groups) when length(groups) < 2 do
+    raise(ArgumentError, "at least 2 groups are required for ANOVA")
   end
 
-  def one_way([[] | _], _alpha) do
-    IO.warn("All groups must contain at least one observation")
-    %{}
+  def one_way([[] | _]) do
+    raise(ArgumentError, "all groups must contain at least one observation")
   end
 
-  def one_way(groups, alpha) do
-    # Step 1: Calculate basic statistics
-    all_observations = List.flatten(groups)
-    n_total = length(all_observations)
+  def one_way(groups) do
+    groups = Enum.map(groups, &only_numbers!/1)
+    ns = Enum.map(groups, &length/1)
     k = length(groups)
+    n_total = Enum.sum(ns)
 
-    group_stats = calculate_group_stats(groups)
+    means = Enum.map(groups, &mean/1)
+    overall_mean = weighted_mean(means, ns)
 
-    overall_mean = Enum.sum(all_observations) / n_total
+    # Sums of squares
+    ss_between =
+      Enum.zip(means, ns)
+      |> Enum.reduce(0.0, fn {m, n}, acc -> acc + n * :math.pow(m - overall_mean, 2) end)
 
-    # Step 2: Calculate Sum of Squares
-    {sst, ssr, sse} = calculate_sum_of_squares(all_observations, overall_mean, group_stats)
+    ss_within =
+      groups
+      |> Enum.reduce(0.0, fn g, acc ->
+        m = mean(g)
+        acc + Enum.reduce(g, 0.0, fn x, a -> a + :math.pow(x - m, 2) end)
+      end)
 
-    # Step 3: Degrees of freedom
+    ss_total = ss_between + ss_within
+
+    # Degrees of freedom
     df_between = k - 1
     df_within = n_total - k
     df_total = n_total - 1
 
-    # Step 4: Mean squares
-    ms_between = ssr / df_between
-    ms_within = sse / df_within
+    # Mean squares
+    ms_between = ss_between / df_between
+    ms_within = ss_within / df_within
 
-    # Step 5: F-statistic
-    f_statistic = ms_between / ms_within
+    # F and p-value
+    f = ms_between / ms_within
+    p_value = 1.0 - Statistics.Distributions.F.cdf(df_between, df_within).(f)
 
-    # Step 6: P-value
-    p_value = 1 - Statistics.Distributions.F.cdf(df_between, df_within).(f_statistic)
+    # Effect sizes
+    eta_squared = ss_between / ss_total
+    omega_squared = (ss_between - df_between * ms_within) / (ss_total + ms_within)
 
     %{
       summary: %{
@@ -54,64 +69,39 @@ defmodule ANOVA do
         group_sizes: Enum.map(groups, fn g -> length(g) end),
         total_observations: n_total,
         overall_mean: overall_mean,
-        group_means: Enum.map(group_stats, fn %{mean: mean} -> mean end)
+        group_means: means
       },
       anova_table: %{
-        between: %{ss: ssr, df: df_between, ms: ms_between},
-        within: %{ss: sse, df: df_within, ms: ms_within},
-        total: %{ss: sst, df: df_total}
+        between: %{ss: ss_between, df: df_between, ms: ms_between},
+        within: %{ss: ss_within, df: df_within, ms: ms_within},
+        total: %{ss: ss_total, df: df_total}
       },
       test_results: %{
-        f_statistic: f_statistic,
-        alpha: alpha,
+        f_statistic: f,
         p_value: p_value,
-        significant?: p_value < alpha,
-        effect_size: ssr / sst
+        eta_squared: eta_squared,
+        omega_squared: omega_squared
       }
     }
   end
 
-  defp calculate_group_stats(groups) do
-    Enum.map(groups, fn group ->
-      %{
-        data: group,
-        n: length(group),
-        mean: Enum.sum(group) / length(group),
-        sum: Enum.sum(group)
-      }
-    end)
+  defp only_numbers!(list) when is_list(list) do
+    case Enum.all?(list, &is_number/1) and length(list) >= 2 do
+      true -> list
+      false -> raise(ArgumentError, "each group must be a list of at least 2 numbers")
+    end
   end
 
-  defp calculate_sum_of_squares(all_observations, overall_mean, group_stats) do
-    sst =
-      all_observations
-      |> Enum.map(fn x -> :math.pow(x - overall_mean, 2) end)
-      |> Enum.sum()
+  defp mean(list), do: Enum.sum(list) / length(list)
 
-    # Sum of Squares Regression (Between groups)
-    ssr =
-      group_stats
-      |> Enum.map(fn %{n: n, mean: group_mean} ->
-        n * :math.pow(group_mean - overall_mean, 2)
-      end)
-      |> Enum.sum()
+  defp weighted_mean(means, ns) do
+    total = Enum.sum(ns)
+    if total == 0, do: raise(ArgumentError, "sum of weights is zero")
 
-    # Sum of Squares Error (Within groups)
-    sse =
-      group_stats
-      |> Enum.map(fn %{data: group, mean: group_mean} ->
-        group
-        |> Enum.map(fn x -> :math.pow(x - group_mean, 2) end)
-        |> Enum.sum()
-      end)
-      |> Enum.sum()
-
-    # Verify the fundamental ANOVA identity: SST = SSR + SSE
-    if abs(sst - (ssr + sse)) > 0.001 do
-      IO.puts("WARNING: SST != SSR + SSE. Check calculations!")
-      IO.puts("SST: #{sst}, SSR + SSE: #{ssr + sse}")
-    end
-
-    {sst, ssr, sse}
+    means
+    |> Enum.zip(ns)
+    |> Enum.map(fn {m, n} -> m * n end)
+    |> Enum.sum()
+    |> Kernel./(total)
   end
 end

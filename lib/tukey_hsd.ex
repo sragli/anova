@@ -7,26 +7,26 @@ defmodule TukeyHSD do
   @doc """
   Performs Tukey's HSD test using ANOVA results.
   """
-  def test(%{
-        summary: %{
-          groups: n_groups,
-          group_sizes: group_sizes,
-          group_means: group_means
-        },
-        anova_table: %{
-          within: %{df: df_within, ms: ms_within}
-        },
-        test_results: %{
-          alpha: alpha
-        }
-      } = anova_result) do
+  def test(
+        %{
+          summary: %{
+            groups: n_groups,
+            group_sizes: group_sizes,
+            group_means: group_means
+          },
+          anova_table: %{
+            within: %{df: df_within, ms: ms_within}
+          }
+        } = anova_result,
+        alpha
+      ) do
     q_critical = get_q_critical(n_groups, df_within, alpha)
 
     comparisons = perform_pairwise_comparisons(group_means, group_sizes, ms_within, q_critical)
 
     anova_result
-    |> Map.put(:pairwise_comparisons, comparisons)
     |> Map.put(:posthoc_summary, summarize_results(comparisons))
+    |> Map.put(:pairwise_comparisons, comparisons)
   end
 
   defp perform_pairwise_comparisons(group_means, group_sizes, ms_within, q_critical) do
@@ -242,6 +242,7 @@ defmodule TukeyHSD do
     effect_sizes = Enum.map(comparisons, & &1.effect_size)
 
     %{
+      test: "Tukey's HSD",
       total_comparisons: total_comparisons,
       significant_comparisons: significant_comparisons,
       non_significant_comparisons: total_comparisons - significant_comparisons,
