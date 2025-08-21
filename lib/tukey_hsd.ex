@@ -24,9 +24,13 @@ defmodule TukeyHSD do
 
     comparisons = perform_pairwise_comparisons(group_means, group_sizes, ms_within, q_critical)
 
-    anova_result
-    |> Map.put(:posthoc_summary, summarize_results(comparisons))
-    |> Map.put(:pairwise_comparisons, comparisons)
+    %{
+      anova: anova_result,
+      post_hoc_test: %{
+        summary: summarize_results(comparisons),
+        pairwise_comparisons: comparisons
+      }
+    }
   end
 
   defp perform_pairwise_comparisons(group_means, group_sizes, ms_within, q_critical) do
@@ -68,7 +72,7 @@ defmodule TukeyHSD do
         p_value: p_value,
         significant?: significant,
         confidence_interval: ci,
-        effect_size: calculate_cohens_d(difference, standard_error)
+        effect_size: effect_size(mean_i, mean_j, ms_within)
       }
     end
   end
@@ -92,10 +96,10 @@ defmodule TukeyHSD do
     }
   end
 
-  defp calculate_cohens_d(difference, standard_error) do
-    # Rough approximation of Cohen's d
-    # This is simplified - true Cohen's d would need pooled standard deviation
-    difference / (standard_error * :math.sqrt(2))
+  # Approximation of Cohen's d
+  def effect_size(group1_mean, group2_mean, ms_within) when ms_within > 0.0 do
+    diff = abs(group1_mean - group2_mean)
+    diff / :math.sqrt(ms_within)
   end
 
   defp get_q_critical(k, df, alpha) do
