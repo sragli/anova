@@ -50,7 +50,7 @@ defmodule TukeyHSD do
 
       q_statistic = difference / standard_error
 
-      p_value = estimate_tukey_p_value(q_statistic)
+      p_value = estimate_tukey_p_value(q_statistic, length(group_means))
 
       ci = calculate_confidence_interval(mean_i - mean_j, hsd)
 
@@ -73,15 +73,15 @@ defmodule TukeyHSD do
     end
   end
 
-  defp estimate_tukey_p_value(q_statistic) do
-    # Categorical p-value estimation
-    cond do
-      q_statistic > 5.5 -> 0.001
-      q_statistic > 4.5 -> 0.01
-      q_statistic > 3.8 -> 0.05
-      q_statistic > 3.0 -> 0.10
-      true -> 0.20
+  # Approximates p-value for Tukey's HSD q-statistic using normal approximation.
+  # Works best when df is large.
+  defp estimate_tukey_p_value(q_statistic, n_groups) do
+    phi = fn x ->
+      0.5 * (1.0 + :math.erf(x / :math.sqrt(2.0)))
     end
+
+    cdf_val = phi.(q_statistic / :math.sqrt(2.0))
+    1.0 - :math.pow(cdf_val, n_groups - 1)
   end
 
   defp calculate_confidence_interval(raw_difference, hsd) do
