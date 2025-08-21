@@ -37,7 +37,7 @@ defmodule ANOVA.MixProject do
   defp docs() do
     [
       main: "ANOVA",
-      extras: ["README.md", "LICENSE", "examples.livemd"]
+      extras: ["README.md", "LICENSE", "examples.livemd", "CHANGELOG"]
     ]
   end
 
