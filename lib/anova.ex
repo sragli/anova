@@ -19,10 +19,6 @@ defmodule ANOVA do
     raise(ArgumentError, "at least 2 groups are required for ANOVA")
   end
 
-  def one_way([[] | _]) do
-    raise(ArgumentError, "all groups must contain at least one observation")
-  end
-
   def one_way(groups) do
     groups = Enum.map(groups, &only_numbers!/1)
     ns = Enum.map(groups, &length/1)
@@ -96,7 +92,6 @@ defmodule ANOVA do
 
   defp weighted_mean(means, ns) do
     total = Enum.sum(ns)
-    if total == 0, do: raise(ArgumentError, "sum of weights is zero")
 
     means
     |> Enum.zip(ns)
