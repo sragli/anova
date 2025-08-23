@@ -1,3 +1,7 @@
+## [0.6.0] - 2025-08-23
+### Changed
+- More compact output format for Tukey's HSD, removed unnecessary fields
+
 ## [0.5.1] - 2025-08-23
 ### Changed
 - Replaced the Statistics module with Statistex for mean and median calculation

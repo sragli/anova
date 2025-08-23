@@ -39,38 +39,26 @@ defmodule TukeyHSD do
     for {mean_i, i} <- indexed_means,
         {mean_j, j} <- indexed_means,
         i < j do
-      # Get sample sizes for these specific groups
       n_i = Enum.at(group_sizes, i - 1)
       n_j = Enum.at(group_sizes, j - 1)
 
       standard_error = :math.sqrt(ms_within * (1 / n_i + 1 / n_j))
 
-      # Calculate HSD critical difference for this pair
       hsd = q_critical * standard_error
 
       difference = abs(mean_i - mean_j)
-      significant = difference > hsd
 
       q_statistic = difference / standard_error
 
-      p_value = estimate_tukey_p_value(q_statistic, length(group_means))
-
-      ci = calculate_confidence_interval(mean_i - mean_j, hsd)
-
       %{
-        groups: "Group #{i} vs Group #{j}",
-        group_i: i,
-        group_j: j,
-        mean_i: mean_i,
-        mean_j: mean_j,
+        groups: {i, j},
+        means: {mean_i, mean_j},
         difference: difference,
-        raw_difference: mean_i - mean_j,
         standard_error: standard_error,
         q_statistic: q_statistic,
-        hsd_critical: hsd,
-        p_value: p_value,
-        significant?: significant,
-        confidence_interval: ci,
+        p_value: estimate_tukey_p_value(q_statistic, length(group_means)),
+        significant?: difference > hsd,
+        confidence_interval: calculate_confidence_interval(mean_i - mean_j, hsd),
         effect_size: effect_size(mean_i, mean_j, ms_within)
       }
     end

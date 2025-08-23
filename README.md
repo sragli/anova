@@ -15,7 +15,7 @@ The package can be installed by adding `anova` to your list of dependencies in `
 ```elixir
 def deps do
   [
-    {:anova, "~> 0.5.1"}
+    {:anova, "~> 0.6.0"}
   ]
 end
 ```
