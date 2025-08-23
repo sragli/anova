@@ -27,9 +27,9 @@ groups = [[1,2,3,4,5], [6,7,8,9,10], [11,12,13,14,15]]
 
 alpha = 0.05
 
-anova_results = ANOVA.one_way(groups)
-
-tukey_results = TukeyHSD.test(anova_results, alpha)
+groups
+|> ANOVA.one_way()
+|> TukeyHSD.test(alpha)
 ```
 
 ## Limitations
@@ -89,3 +89,5 @@ differ significantly from each other.
   to the variability within groups.
 * p-value: The probability of observing the results (or more extreme results) if the null
   hypothesis is true.
+* alpha: Significance level, represents the probability of incorrectly rejecting a true
+  null hypothesis.
