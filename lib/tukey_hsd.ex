@@ -254,14 +254,14 @@ defmodule TukeyHSD do
         |> Enum.filter(& &1.significant?)
         |> Enum.map(& &1.groups),
       difference_stats: %{
-        mean: Statistics.mean(differences),
-        median: Statistics.median(differences),
+        mean: Statistex.average(differences),
+        median: Statistex.median(differences),
         min: Enum.min(differences),
         max: Enum.max(differences)
       },
       effect_size_stats: %{
-        mean: Statistics.mean(effect_sizes),
-        median: Statistics.median(effect_sizes)
+        mean: Statistex.average(effect_sizes),
+        median: Statistex.median(effect_sizes)
       }
     }
   end

@@ -16,7 +16,7 @@ If [available in Hex](https://hex.pm/docs/publish), the package can be installed
 ```elixir
 def deps do
   [
-    {:anova, "~> 0.5.0"}
+    {:anova, "~> 0.5.1"}
   ]
 end
 ```

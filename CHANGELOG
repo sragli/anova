@@ -1,3 +1,9 @@
+## [0.5.1] - 2025-08-23
+### Changed
+- Replaced the Statistics module with Statistex for mean and median calculation
+- Implemented the cumulative distribution function of the F distribution, to replace the one in
+  Statistics, since it is not precise enough
+
 ## [0.5.0] - 2025-08-21
 ### Changed
 - Better-structured Tukey's HSD result format

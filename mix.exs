@@ -4,7 +4,7 @@ defmodule ANOVA.MixProject do
   def project do
     [
       app: :anova,
-      version: "0.5.0",
+      version: "0.5.1",
       elixir: "~> 1.15",
       start_permanent: Mix.env() == :prod,
       description: description(),
@@ -43,7 +43,7 @@ defmodule ANOVA.MixProject do
 
   defp deps do
     [
-      {:statistics, "~> 0.6"},
+      {:statistex, "~> 1.0"},
       {:ex_doc, ">= 0.0.0", only: :dev, runtime: false}
     ]
   end
