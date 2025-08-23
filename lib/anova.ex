@@ -129,7 +129,7 @@ defmodule ANOVA do
       true ->
         bt =
           :math.exp(
-            lgamma(a + b) - lgamma(a) - lgamma(b) +
+            MathUtils.lgamma(a + b) - MathUtils.lgamma(a) - MathUtils.lgamma(b) +
               a * :math.log(x) + b * :math.log(1.0 - x)
           )
 
@@ -193,38 +193,5 @@ defmodule ANOVA do
       end)
 
     h
-  end
-
-  # Lanczos approximation
-  defp lgamma(z) do
-    g = 7
-
-    p = [
-      0.99999999999980993,
-      676.5203681218851,
-      -1259.1392167224028,
-      771.32342877765313,
-      -176.61502916214059,
-      12.507343278686905,
-      -0.13857109526572012,
-      9.9843695780195716e-6,
-      1.5056327351493116e-7
-    ]
-
-    if z < 0.5 do
-      # Reflection formula
-      :math.log(:math.pi()) - :math.log(:math.sin(:math.pi() * z)) - lgamma(1 - z)
-    else
-      z = z - 1
-      x = hd(p)
-
-      x =
-        Enum.drop(p, 1)
-        |> Enum.with_index(1)
-        |> Enum.reduce(x, fn {coef, i}, acc -> acc + coef / (z + i) end)
-
-      t = z + g + 0.5
-      0.5 * :math.log(2 * :math.pi()) + (z + 0.5) * :math.log(t) - t + :math.log(x)
-    end
   end
 end

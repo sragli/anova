@@ -15,7 +15,7 @@ The package can be installed by adding `anova` to your list of dependencies in `
 ```elixir
 def deps do
   [
-    {:anova, "~> 0.6.0"}
+    {:anova, "~> 0.6.1"}
   ]
 end
 ```
@@ -31,10 +31,6 @@ groups
 |> ANOVA.one_way()
 |> TukeyHSD.test(alpha)
 ```
-
-## Limitations
-
-* Using rough approximations to estimate Tukey's p-value.
 
 ## Theoretical Background
 

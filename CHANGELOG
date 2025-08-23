@@ -1,3 +1,7 @@
+## [0.6.1] - 2025-08-23
+### Changed
+- Modified Tukey's HSD calculation to use much better approximations
+
 ## [0.6.0] - 2025-08-23
 ### Changed
 - More compact output format for Tukey's HSD, removed unnecessary fields
