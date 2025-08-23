@@ -1,11 +1,23 @@
+<!-- livebook:{"default_language":"python"} -->
+
 # ANOVA Test
 
 ```elixir
 Mix.install([
   {:kino, "~> 0.7"},
   {:kino_vega_lite, "~> 0.1.13"},
-  {:anova, "~> 0.4.0"}
+  {:pythonx, "~> 0.4.2"},
+  {:anova, "~> 0.6.1"},
+  {:kino_pythonx, "~> 0.1.0"}
 ])
+```
+
+```pyproject.toml
+[project]
+name = "project"
+version = "0.0.0"
+requires-python = "==3.13.*"
+dependencies = ["scipy==1.16.1"]
 ```
 
 ## Preparing input
@@ -27,11 +39,25 @@ Our hypothesis is that the stimulus cause measurable and significant effect. It 
 We will test it using ANOVA, using the significance level (α - the probability that the null hypothesis is true) 0.05:
 
 ```elixir
-anova_results = ANOVA.one_way(groups)
-
 alpha = 0.05
 
-TukeyHSD.test(anova_results, alpha)
+groups
+|> ANOVA.one_way()
+|> TukeyHSD.test(alpha)
 ```
 
 As you have seen, we have disproved the null hypothesis, the difference is significant.
+
+## Verification of correctness
+
+We compare the results of scipy.stats.f_oneway and our implementation.
+
+```python
+from scipy.stats import f_oneway, tukey_hsd
+
+F, p = f_oneway(groups[0], groups[1])
+print(F, p)
+
+tukey_res = tukey_hsd(groups[0], groups[1])
+print(tukey_res)
+```
