@@ -1,5 +1,3 @@
-<!-- livebook:{"default_language":"python"} -->
-
 # ANOVA Test
 
 ```elixir
@@ -28,7 +26,8 @@ We have a series of measurements grouped by stimuli. We applied the same stimulu
 groups =
   [
     [12394, 8802, 11233, 9523, 10351, 10063, 8181, 9665, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0]
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [500, 700, 800, 800, 200, 1000, 300, 600]
   ]
 ```
 
@@ -41,12 +40,46 @@ We will test it using ANOVA, using the significance level (α - the probability 
 ```elixir
 alpha = 0.05
 
-groups
-|> ANOVA.one_way()
-|> TukeyHSD.test(alpha)
+anova_results =
+  groups
+  |> ANOVA.one_way()
+  |> TukeyHSD.test(alpha)
 ```
 
 As you have seen, we have disproved the null hypothesis, the difference is significant.
+
+<!-- livebook:{"break_markdown":true} -->
+
+### Visualization
+
+```elixir
+effect_data =
+  anova_results.post_hoc_test.pairwise_comparisons
+  |> Enum.map(fn comp ->
+      {group1, group2} = comp.groups
+      %{
+        comparison: "Group#{group1} vs Group#{group2}",
+        effect_size: comp.effect_size,
+        significance: if(comp.significant?, do: "Significant", else: "Not Significant"),
+        p_value: comp.p_value
+      }
+    end)
+
+VegaLite.new(width: 400, height: 300, title: "Effect Size (Cohen's d)")
+|> VegaLite.data_from_values(effect_data)
+|> VegaLite.mark(:bar, width: 50)
+|> VegaLite.encode_field(:x, "comparison", type: :nominal, title: "Comparison")
+|> VegaLite.encode_field(:y, "effect_size", type: :quantitative, title: "Effect Size")
+|> VegaLite.encode(:color, field: "significance", type: :nominal, title: "Significance",
+    scale: [domain: ["Significant", "Not Significant"], 
+            range: ["#d62728", "#2ca02c"]]
+)
+|> VegaLite.encode(:tooltip, [
+  [field: "effect_size", type: :quantitative, title: "Effect Size"],
+  [field: "p_value", type: :quantitative, title: "p-value", format: ".2e"],
+  [field: "significance", type: :nominal, title: "Significance"]
+])
+```
 
 ## Verification of correctness
 
@@ -55,9 +88,9 @@ We compare the results of scipy.stats.f_oneway and our implementation.
 ```python
 from scipy.stats import f_oneway, tukey_hsd
 
-F, p = f_oneway(groups[0], groups[1])
+F, p = f_oneway(groups[0], groups[1], groups[2])
 print(F, p)
 
-tukey_res = tukey_hsd(groups[0], groups[1])
+tukey_res = tukey_hsd(groups[0], groups[1], groups[2])
 print(tukey_res)
 ```
