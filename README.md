@@ -74,6 +74,8 @@ differ significantly from each other.
   * No correction for multiple comparisons
   * Highest power but higher Type I error risk
 
+Currently we have a full implementation of Tukey's HSD and working on the others.
+
 ### Key Concepts
 
 * Independent Variable (Factor): The variable that defines the groups being compared.
@@ -87,3 +89,12 @@ differ significantly from each other.
   hypothesis is true.
 * alpha: Significance level, represents the probability of incorrectly rejecting a true
   null hypothesis.
+
+## References
+
+* Fisher, R. A. (1925). Statistical Methods for Research Workers. Oliver & Boyd.
+* Montgomery, D. C. (2019). Design and Analysis of Experiments (10th ed.). Wiley.
+* Howell, D. C. (2013). Statistical Methods for Psychology (8th ed.). Cengage Learning.
+* Tukey, J. W. (1949). Comparing individual means in the analysis of variance.
+  Biometrics, 5(2), 99–114. https://doi.org/10.2307/3001913
+* Hsu, J. C. (1996). Multiple Comparisons: Theory and Methods. Chapman & Hall.
