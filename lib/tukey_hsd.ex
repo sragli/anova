@@ -4,9 +4,50 @@ defmodule TukeyHSD do
   for use with ANOVA results in the specified format.
   """
 
+  @type int_pair :: {pos_integer(), pos_integer()}
+  @type float_pair :: {float(), float()}
+
+  @type test_result :: %{
+          anova: ANOVA.one_way_result(),
+          post_hoc_test: %{
+            summary: %{
+              test: binary(),
+              total_comparisons: pos_integer(),
+              significant_comparisons: non_neg_integer(),
+              non_significant_comparisons: non_neg_integer(),
+              significant_pairs: [int_pair()],
+              difference_stats: %{
+                max: float(),
+                min: float(),
+                median: float(),
+                mean: float()
+              },
+              effect_size_stats: %{median: float(), mean: float()}
+            },
+            pairwise_comparisons: [
+              %{
+                standard_error: float(),
+                difference: float(),
+                groups: int_pair(),
+                effect_size: float(),
+                significant?: boolean(),
+                confidence_interval: %{
+                  level: float(),
+                  upper: float(),
+                  lower: float()
+                },
+                means: float_pair(),
+                p_value: float(),
+                q_statistic: float()
+              }
+            ]
+          }
+        }
+
   @doc """
   Performs Tukey's HSD test using ANOVA results.
   """
+  @spec test(ANOVA.one_way_result(), float()) :: test_result()
   def test(
         %{
           summary: %{
@@ -19,8 +60,8 @@ defmodule TukeyHSD do
         } = anova_result,
         alpha
       ) do
-
-    comparisons = perform_pairwise_comparisons(group_means, group_sizes, df_within, ms_within, alpha)
+    comparisons =
+      perform_pairwise_comparisons(group_means, group_sizes, df_within, ms_within, alpha)
 
     %{
       anova: anova_result,

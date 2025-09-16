@@ -6,6 +6,27 @@ defmodule ANOVA do
   @type number_list :: [number()]
   @type groups :: [number_list()]
 
+  @type one_way_result :: %{
+          summary: %{
+            groups: pos_integer(),
+            group_sizes: [pos_integer()],
+            total_observations: pos_integer(),
+            overall_mean: float(),
+            group_means: [float()]
+          },
+          anova_table: %{
+            between: %{ss: float(), df: float(), ms: float()},
+            within: %{ss: float(), df: float(), ms: float()},
+            total: %{ss: float(), df: float()}
+          },
+          test_results: %{
+            f_statistic: float(),
+            p_value: float(),
+            eta_squared: float(),
+            omega_squared: float()
+          }
+        }
+
   @doc """
   One-way ANOVA for k independent groups (unequal n allowed).
 
@@ -13,7 +34,7 @@ defmodule ANOVA do
 
   Returns a map with the computed values.
   """
-  @spec one_way(groups()) :: map()
+  @spec one_way(groups()) :: one_way_result()
 
   def one_way(groups) when length(groups) < 2 do
     raise(ArgumentError, "at least 2 groups are required for ANOVA")
