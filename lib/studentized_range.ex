@@ -41,6 +41,8 @@ defmodule StudentizedRange do
 
   Returns a float in [0,1].
   """
+  @spec ptukey(float(), pos_integer(), pos_integer() | :infinity) :: float()
+
   def ptukey(q, k, df, opts \\ [])
 
   def ptukey(q, _k, _df, _opts) when q <= 0.0, do: 0.0
@@ -102,6 +104,8 @@ defmodule StudentizedRange do
 
   Returns a positive float.
   """
+  @spec qtukey(float(), pos_integer(), pos_integer() | :infinity) :: :infinity | float()
+
   def qtukey(p, k, df, opts \\ [])
 
   def qtukey(p, _k, _df, _opts) when p <= 0.0, do: 0.0

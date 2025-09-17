@@ -44,7 +44,8 @@ defmodule ANOVA.MixProject do
   defp deps do
     [
       {:statistex, "~> 1.0"},
-      {:ex_doc, ">= 0.0.0", only: :dev, runtime: false}
+      {:ex_doc, ">= 0.0.0", only: :dev, runtime: false},
+      {:credo, "~> 1.7", only: [:dev, :test], runtime: false}
     ]
   end
 end

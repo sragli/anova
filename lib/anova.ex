@@ -55,8 +55,7 @@ defmodule ANOVA do
       |> Enum.reduce(0.0, fn {m, n}, acc -> acc + n * :math.pow(m - overall_mean, 2) end)
 
     ss_within =
-      groups
-      |> Enum.reduce(0.0, fn g, acc ->
+      Enum.reduce(groups, 0.0, fn g, acc ->
         m = mean(g)
         acc + Enum.reduce(g, 0.0, fn x, a -> a + :math.pow(x - m, 2) end)
       end)

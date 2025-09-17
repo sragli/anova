@@ -1,7 +1,6 @@
 defmodule TukeyHSD do
   @moduledoc """
-  Tukey's Honestly Significant Difference (HSD) post-hoc test
-  for use with ANOVA results in the specified format.
+  Tukey's Honestly Significant Difference (HSD) post-hoc test.
   """
 
   @type int_pair :: {pos_integer(), pos_integer()}
@@ -115,7 +114,7 @@ defmodule TukeyHSD do
   end
 
   # Approximation of Cohen's d
-  def effect_size(group1_mean, group2_mean, ms_within) when ms_within > 0.0 do
+  defp effect_size(group1_mean, group2_mean, ms_within) when ms_within > 0.0 do
     diff = abs(group1_mean - group2_mean)
     diff / :math.sqrt(ms_within)
   end
