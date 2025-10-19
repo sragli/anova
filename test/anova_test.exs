@@ -1,6 +1,4 @@
 defmodule ANOVATest do
-  @moduledoc false
-
   use ExUnit.Case
   doctest ANOVA
 
@@ -17,5 +15,14 @@ defmodule ANOVATest do
     result = ANOVA.one_way(groups)
 
     assert result.test_results.p_value < alpha
+  end
+
+  test "raises when fewer than 2 groups" do
+    assert_raise ArgumentError, fn -> ANOVA.one_way([[1, 2]]) end
+  end
+
+  test "raises when a group has fewer than 2 numbers or non-numeric entries" do
+    assert_raise ArgumentError, fn -> ANOVA.one_way([[1, 2], [3]]) end
+    assert_raise ArgumentError, fn -> ANOVA.one_way([[1, 2], [3, "a"]]) end
   end
 end
