@@ -25,4 +25,13 @@ defmodule ANOVATest do
     assert_raise ArgumentError, fn -> ANOVA.one_way([[1, 2], [3]]) end
     assert_raise ArgumentError, fn -> ANOVA.one_way([[1, 2], [3, "a"]]) end
   end
+
+  test "identical within-group values yield infinity f-statistic and zero p-value" do
+    # ms_within = 0 when all observations in every group are equal
+    result = ANOVA.one_way([[5, 5, 5], [6, 6, 6], [7, 7, 7]])
+
+    assert result.anova_table.within.ms == 0.0
+    assert result.test_results.f_statistic == :infinity
+    assert result.test_results.p_value == 0.0
+  end
 end

@@ -1,41 +1,54 @@
-defmodule StudentizedRangeTest do
+defmodule TukeyHSDTest do
   use ExUnit.Case
 
-  describe "basic guards" do
-    test "ptukey returns 0 for nonpositive q" do
-      assert StudentizedRange.ptukey(0.0, 3, 5) == 0.0
-      assert StudentizedRange.ptukey(-1.0, 4, :infinity) == 0.0
+  @groups [[1, 2, 1, 0], [2, 3, 2, 1], [10, 7, 10, 8], [5, 4, 5, 6]]
+
+  describe "confidence interval level" do
+    test "reflects alpha=0.05 as 95.0" do
+      result = TukeyHSD.test(ANOVA.one_way(@groups), 0.05)
+      levels = Enum.map(result.post_hoc_test.pairwise_comparisons, & &1.confidence_interval.level)
+      assert Enum.all?(levels, &(&1 == 95.0))
     end
 
-    test "qtukey endpoint behaviour" do
-      assert StudentizedRange.qtukey(0.0, 3, 10) == 0.0
-      assert StudentizedRange.qtukey(1.0, 3, 10) == :infinity
+    test "reflects alpha=0.01 as 99.0" do
+      result = TukeyHSD.test(ANOVA.one_way(@groups), 0.01)
+      levels = Enum.map(result.post_hoc_test.pairwise_comparisons, & &1.confidence_interval.level)
+      assert Enum.all?(levels, &(&1 == 99.0))
+    end
+
+    test "reflects alpha=0.10 as 90.0" do
+      result = TukeyHSD.test(ANOVA.one_way(@groups), 0.10)
+      levels = Enum.map(result.post_hoc_test.pairwise_comparisons, & &1.confidence_interval.level)
+      assert Enum.all?(levels, &(&1 == 90.0))
     end
   end
 
-  describe "consistency of qtukey <-> ptukey (invertibility)" do
-    test "finite df: qtukey then ptukey ≈ p" do
-      p = 0.95
-      k = 4
-      df = 10
+  describe "zero within-group variance" do
+    # Groups with no within-group spread produce ms_within = 0,
+    # standard_error = 0, and undefined q-statistics.
+    @zero_var_groups [[5, 5, 5], [6, 6, 6], [7, 7, 7]]
 
-      q = StudentizedRange.qtukey(p, k, df)
-      assert is_number(q) and q > 0.0
-
-      p_est = StudentizedRange.ptukey(q, k, df)
-      assert_in_delta(p_est, p, 1.0e-6)
+    test "does not crash" do
+      anova = ANOVA.one_way(@zero_var_groups)
+      assert anova.anova_table.within.ms == 0.0
+      assert %{post_hoc_test: %{pairwise_comparisons: [_ | _]}} = TukeyHSD.test(anova, 0.05)
     end
 
-    test "infinite df: qtukey then ptukey ≈ p" do
-      p = 0.975
-      k = 3
-      df = :infinity
+    test "q_statistic is :infinity and p_value is 0.0" do
+      result = TukeyHSD.test(ANOVA.one_way(@zero_var_groups), 0.05)
 
-      q = StudentizedRange.qtukey(p, k, df)
-      assert is_number(q) and q > 0.0
+      for comp <- result.post_hoc_test.pairwise_comparisons do
+        assert comp.q_statistic == :infinity
+        assert comp.p_value == 0.0
+      end
+    end
 
-      p_est = StudentizedRange.ptukey(q, k, df)
-      assert_in_delta(p_est, p, 1.0e-6)
+    test "effect_size is 0.0" do
+      result = TukeyHSD.test(ANOVA.one_way(@zero_var_groups), 0.05)
+
+      for comp <- result.post_hoc_test.pairwise_comparisons do
+        assert comp.effect_size == 0.0
+      end
     end
   end
 end
