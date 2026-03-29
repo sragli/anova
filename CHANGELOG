@@ -1,3 +1,11 @@
+## [0.7.0] - 2026-03-29
+### Fixed
+- `TukeyHSD`: confidence interval `level` was always 95.0 regardless of `alpha`; now correctly reflects `(1 - alpha) * 100`
+- `StudentizedRange`: passing `inner_nodes: 8` or `outer_nodes: 8` caused a `FunctionClauseError`; unsupported node count guard tightened to 16
+- `ANOVA.one_way`: division by zero when all within-group observations are identical (`ms_within = 0`); F-statistic now returns `:infinity` and p-value `0.0`
+- `TukeyHSD`: q-statistic and p-value computation guarded against zero standard error
+- `TukeyHSD`: missing `effect_size/3` fallback clause for `ms_within = 0` added
+
 ## [0.6.1] - 2025-08-23
 ### Changed
 - Modified Tukey's HSD calculation to use much better approximations

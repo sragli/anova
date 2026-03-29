@@ -72,8 +72,13 @@ defmodule ANOVA do
     ms_within = ss_within / df_within
 
     # F and p-value
-    f = ms_between / ms_within
-    p_value = 1.0 - f_cdf(f, df_between, df_within)
+    {f, p_value} =
+      if ms_within > 0.0 do
+        f = ms_between / ms_within
+        {f, 1.0 - f_cdf(f, df_between, df_within)}
+      else
+        {:infinity, 0.0}
+      end
 
     # Effect sizes
     eta_squared = ss_between / ss_total

@@ -89,7 +89,13 @@ defmodule TukeyHSD do
 
       difference = abs(mean_i - mean_j)
 
-      q_statistic = difference / standard_error
+      q_statistic =
+        if standard_error > 0.0, do: difference / standard_error, else: :infinity
+
+      p_value =
+        if is_number(q_statistic),
+          do: 1 - StudentizedRange.ptukey(q_statistic, n_groups, df_within),
+          else: 0.0
 
       %{
         groups: {i, j},
@@ -97,19 +103,19 @@ defmodule TukeyHSD do
         difference: difference,
         standard_error: standard_error,
         q_statistic: q_statistic,
-        p_value: 1 - StudentizedRange.ptukey(q_statistic, n_groups, df_within),
+        p_value: p_value,
         significant?: difference > hsd,
-        confidence_interval: calculate_confidence_interval(mean_i - mean_j, hsd),
+        confidence_interval: calculate_confidence_interval(mean_i - mean_j, hsd, alpha),
         effect_size: effect_size(mean_i, mean_j, ms_within)
       }
     end
   end
 
-  defp calculate_confidence_interval(raw_difference, hsd) do
+  defp calculate_confidence_interval(raw_difference, hsd, alpha) do
     %{
       lower: raw_difference - hsd,
       upper: raw_difference + hsd,
-      level: 95.0
+      level: (1 - alpha) * 100
     }
   end
 
@@ -118,6 +124,8 @@ defmodule TukeyHSD do
     diff = abs(group1_mean - group2_mean)
     diff / :math.sqrt(ms_within)
   end
+
+  defp effect_size(_group1_mean, _group2_mean, _ms_within), do: 0.0
 
   defp summarize_results(comparisons) do
     total_comparisons = length(comparisons)

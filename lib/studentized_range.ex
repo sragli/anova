@@ -158,7 +158,7 @@ defmodule StudentizedRange do
     0.0271524594117541
   ]
 
-  defp integrate_gl(a, b, f, nodes, panels) when a < b and nodes in [8, 16] do
+  defp integrate_gl(a, b, f, nodes, panels) when a < b and nodes == 16 do
     # We implement for nodes=16 (default). For nodes=8, we just reuse a subset.
     # Split [a,b] into `panels` equal subintervals to get adaptive-like behavior.
     h = (b - a) / panels
