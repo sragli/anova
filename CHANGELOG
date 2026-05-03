@@ -1,3 +1,7 @@
+## [0.7.1] - 2026-05-03
+### Fixed
+- `StudentizedRange`: `ArithmeticError` raised by `:math.pow/2` overflow when `df` is large (e.g. 301); `c_prefactor/2` now computed entirely in log-space
+
 ## [0.7.0] - 2026-03-29
 ### Fixed
 - `TukeyHSD`: confidence interval `level` was always 95.0 regardless of `alpha`; now correctly reflects `(1 - alpha) * 100`

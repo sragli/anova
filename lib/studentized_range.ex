@@ -196,10 +196,16 @@ defmodule StudentizedRange do
   defp cdf_norm(x), do: 0.5 * (1.0 + :math.erf(x / @sqrt2))
 
   # Prefactor C(k, ν) = √(2π) k ν^{ν/2} / (Γ(ν/2) 2^{(ν/2 - 1)})
+  # Computed in log-space to avoid overflow when df is large.
   defp c_prefactor(k, df) do
-    num = @sqrt2pi * k * :math.pow(df, df / 2)
-    den = :math.pow(2.0, df / 2 - 1.0) * :math.exp(MathUtils.lgamma(df / 2))
-    num / den
+    log_c =
+      :math.log(@sqrt2pi) +
+        :math.log(k) +
+        df / 2 * :math.log(df) -
+        (df / 2 - 1.0) * :math.log(2.0) -
+        MathUtils.lgamma(df / 2)
+
+    :math.exp(log_c)
   end
 
   # ===== Root finding for qtukey ===============================================

@@ -39,6 +39,19 @@ defmodule StudentizedRangeTest do
     end
   end
 
+  describe "large df (overflow regression)" do
+    # Regression: :math.pow(df, df/2) overflows for large df, causing ArithmeticError.
+    # c_prefactor/2 must be computed in log-space.
+    test "ptukey does not raise for large df" do
+      assert is_number(StudentizedRange.ptukey(3.0, 4, 301))
+    end
+
+    test "qtukey does not raise for large df" do
+      q = StudentizedRange.qtukey(0.95, 4, 301)
+      assert is_number(q) and q > 0.0
+    end
+  end
+
   describe "unsupported options" do
     test "inner_nodes: 8 raises FunctionClauseError" do
       assert_raise FunctionClauseError, fn ->
