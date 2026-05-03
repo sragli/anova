@@ -2,11 +2,7 @@
 
 ANOVA implementation in Elixir.
 
-ANOVA, or Analysis of Variance is a widely used statistical technique for comparing means
-among multiple groups, providing insights into whether observed differences are due to
-actual effects or simply random variability. It's an extension of the t-test, allowing for
-comparisons among multiple groups simultaneously. One-Way ANOVA compares means of three or
-more independent groups for one factor.
+ANOVA, or Analysis of Variance is a widely used statistical technique for comparing means among multiple groups, providing insights into whether observed differences are due to actual effects or simply random variability. It's an extension of the t-test, allowing for comparisons among multiple groups simultaneously. One-Way ANOVA compares means of three or more independent groups for one factor.
 
 ## Installation
 
@@ -15,7 +11,7 @@ The package can be installed by adding `anova` to your list of dependencies in `
 ```elixir
 def deps do
   [
-    {:anova, "~> 0.7.1"}
+    {:anova, "~> 0.7.2"}
   ]
 end
 ```
@@ -34,18 +30,10 @@ groups
 
 ## Theoretical Background
 
-One-way ANOVA (Analysis of Variance) is used to test the null hypothesis that the means of
-several groups are equal against the alternative hypothesis that at least one group mean
-is different.
+One-way ANOVA (Analysis of Variance) is used to test the null hypothesis that the means of several groups are equal against the alternative hypothesis that at least one group mean is different.
 
-One-way ANOVA partitions the total variability in the data into two sources: variability
-between groups (due to the factor) and variability within groups (due to random error). It
-then compares these two sources of variability using the F-statistic. A large F-statistic
-suggests that the between-group variability is much larger than the within-group
-variability, indicating a significant difference between at least two group means.
-Post-hoc tests: If the one-way ANOVA result is significant (meaning at least two groups
-have different means), post-hoc tests are often used to determine which specific groups
-differ significantly from each other.
+One-way ANOVA partitions the total variability in the data into two sources: variability between groups (due to the factor) and variability within groups (due to random error). It then compares these two sources of variability using the F-statistic. A large F-statistic suggests that the between-group variability is much larger than the within-group variability, indicating a significant difference between at least two group means.
+Post-hoc tests: If the one-way ANOVA result is significant (meaning at least two groups have different means), post-hoc tests are often used to determine which specific groups differ significantly from each other.
 
 ### Common Post-hoc Tests
 
@@ -83,18 +71,14 @@ Currently we have a full implementation of Tukey's HSD and working on the others
 * Groups: The different levels or categories within the independent variable.
 * Null Hypothesis: The assumption that all group means are equal (no difference).
 * Alternative Hypothesis: The statement that at least two group means are different.
-* F-statistic: A calculated value that summarizes the variability between groups compared
-  to the variability within groups.
-* p-value: The probability of observing the results (or more extreme results) if the null
-  hypothesis is true.
-* alpha: Significance level, represents the probability of incorrectly rejecting a true
-  null hypothesis.
+* F-statistic: A calculated value that summarizes the variability between groups compared to the variability within groups.
+* p-value: The probability of observing the results (or more extreme results) if the null hypothesis is true.
+* alpha: Significance level, represents the probability of incorrectly rejecting a true null hypothesis.
 
 ## References
 
 * Fisher, R. A. (1925). Statistical Methods for Research Workers. Oliver & Boyd.
 * Montgomery, D. C. (2019). Design and Analysis of Experiments (10th ed.). Wiley.
 * Howell, D. C. (2013). Statistical Methods for Psychology (8th ed.). Cengage Learning.
-* Tukey, J. W. (1949). Comparing individual means in the analysis of variance.
-  Biometrics, 5(2), 99–114. https://doi.org/10.2307/3001913
+* Tukey, J. W. (1949). Comparing individual means in the analysis of variance. Biometrics, 5(2), 99–114. https://doi.org/10.2307/3001913
 * Hsu, J. C. (1996). Multiple Comparisons: Theory and Methods. Chapman & Hall.

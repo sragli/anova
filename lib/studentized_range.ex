@@ -76,7 +76,15 @@ defmodule StudentizedRange do
 
     outer_integrand = fn s ->
       # weight from chi distribution piece: s^(ν-1) * φ(√ν s)
-      w = :math.pow(s, df - 1) * phi(:math.sqrt(df) * s)
+      # Computed in log-space to avoid overflow when df is large and s > 1.
+      w =
+        if s <= 0.0 do
+          0.0
+        else
+          # log(sqrt(2π)) = 0.5 * log(2π)
+          log_w = (df - 1) * :math.log(s) - 0.5 * df * s * s - 0.5 * :math.log(2.0 * :math.pi())
+          if log_w < -745.0, do: 0.0, else: :math.exp(log_w)
+        end
 
       # inner integral over z ∈ (−∞, ∞) → truncate to [−zlim, zlim]
       inner = fn z ->

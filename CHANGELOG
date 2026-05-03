@@ -1,3 +1,7 @@
+## [0.7.2] - 2026-05-03
+### Fixed
+- `StudentizedRange`: `ArithmeticError` from `:math.pow/2` overflow when `df` is large; outer integrand weight now computed in log-space to avoid intermediate overflow
+
 ## [0.7.1] - 2026-05-03
 ### Fixed
 - `StudentizedRange`: `ArithmeticError` raised by `:math.pow/2` overflow when `df` is large (e.g. 301); `c_prefactor/2` now computed entirely in log-space
